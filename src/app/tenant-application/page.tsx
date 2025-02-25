@@ -1,13 +1,14 @@
 import React from "react";
+import TenantApplicationForm from "./TenantApplicationForm";
 
 type Props = {};
 
-const page = (props: Props) => {
+const Page = (props: Props) => {
   return (
-    <div className="w-full h-full min-h-screen flex items-center justify-center text-4xl font-bold">
-      Tenant Application Page
-    </div>
+    <main className="w-full h-full min-h-screen flex items-center justify-center">
+      <TenantApplicationForm />
+    </main>
   );
 };
 
-export default page;
+export default Page;

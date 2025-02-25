@@ -1,7 +1,8 @@
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
+import env from "./env";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-very-secure-secret";
+const JWT_SECRET = env.JWT_SECRET;
 
 export async function hashPassword(plainPassword: string): Promise<string> {
   return await argon2.hash(plainPassword);

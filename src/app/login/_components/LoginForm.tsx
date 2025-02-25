@@ -25,6 +25,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -47,12 +48,17 @@ const LoginForm = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await mutation.mutateAsync({
-        email: values.email,
-        password: values.password,
-      });
-
-      router.push("/dashboard");
+      await mutation
+        .mutateAsync({
+          email: values.email,
+          password: values.password,
+        })
+        .then(() => {
+          router.push("/dashboard");
+        })
+        .finally(() => {
+          toast("Logged in as " + values.email);
+        });
     } catch (error) {
       alert("Invalid Credentials");
     }

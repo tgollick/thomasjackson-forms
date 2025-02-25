@@ -4,6 +4,8 @@ import "./globals.css";
 import { TRPCReactProvider } from "@/trpc/client";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Toaster } from "@/components/ui/sonner";
+import tjLogo from "../../public/tj-logo.svg";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +38,7 @@ export const metadata: Metadata = {
     siteName: "Thomas Jackson Forms",
     images: [
       {
-        url: "https://thomasjacksonforms.com/og-image.jpg", // replace with your image URL
+        url: tjLogo.src, // replace with your image URL
         width: 1200,
         height: 630,
         alt: "Thomas Jackson Forms",
@@ -73,6 +75,7 @@ export default function RootLayout({
           <TRPCReactProvider>
             <ModeToggle />
             {children}
+            <Toaster />
           </TRPCReactProvider>
         </ThemeProvider>
       </body>

@@ -1,15 +1,14 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
-import { NextApiRequest, NextApiResponse } from "next";
 import { verifyToken } from "@/utils/auth";
-import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
+import { cookies } from "next/headers";
 
-export async function createContext({ req }: { req?: NextRequest } = {}) {
+export async function createContext() {
   let userId: string | null = null;
 
-  // Access cookies from the request
-  const token = req?.cookies.get("authToken")?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("authToken")?.value;
 
   if (token) {
     const payload = verifyToken(token);

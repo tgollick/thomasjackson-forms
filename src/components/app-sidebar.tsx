@@ -6,6 +6,7 @@ import tjLogo from "../../public/tj-logo.svg";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -15,6 +16,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Image from "next/image";
+import { Card } from "./ui/card";
+import LogoutButton from "./logout-button";
 
 // Menu items.
 const items = [
@@ -30,7 +33,11 @@ const items = [
   },
 ];
 
-export function AppSidebar() {
+type Props = {
+  email: string;
+};
+
+export function AppSidebar(props: Props) {
   return (
     <Sidebar>
       <SidebarHeader>
@@ -63,6 +70,12 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <Card className="p-2 space-y-2">
+          <p className="text-sm">Signed in as: {props.email}</p>
+          <LogoutButton />
+        </Card>
+      </SidebarFooter>
     </Sidebar>
   );
 }
