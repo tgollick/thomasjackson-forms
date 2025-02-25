@@ -138,7 +138,7 @@ export default function TenantApplicationForm() {
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="mb-8 text-3xl font-bold text-center">
+      <h1 className="mb-8 text-3xl font-semibold text-center">
         Tenant Application Form
       </h1>
       <Card className="p-6 shadow-lg">
