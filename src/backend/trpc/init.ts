@@ -14,6 +14,8 @@ export async function createContext() {
     const payload = verifyToken(token);
     if (payload) {
       userId = payload.userId;
+    } else {
+      cookieStore.delete("authToken");
     }
   }
 
@@ -27,7 +29,7 @@ const t = initTRPC.context<Context>().create({
 });
 
 // Base router and procedure helpers
-const isAuthed = t.middleware(({ ctx, next }) => {
+const isAuthed = t.middleware(async ({ ctx, next }) => {
   if (!ctx.userId) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
