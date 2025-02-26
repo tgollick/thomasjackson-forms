@@ -56,6 +56,7 @@ export default function PropertyDetails({ form }: PropertyDetailsProps) {
                 type="number"
                 placeholder="Enter the proposed rental amount"
                 {...field}
+                onChange={(e) => field.onChange(Number(e.target.value))}
               />
             </FormControl>
             <FormMessage />

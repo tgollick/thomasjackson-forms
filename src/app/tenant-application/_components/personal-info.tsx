@@ -119,7 +119,20 @@ export default function PersonalInfo({ form }: PersonalInfoProps) {
           <FormItem>
             <FormLabel>Date of Birth</FormLabel>
             <FormControl>
-              <Input type="date" {...field} />
+              <Input
+                type="date"
+                {...field}
+                value={
+                  field.value instanceof Date
+                    ? field.value.toISOString().substring(0, 10)
+                    : ""
+                }
+                onChange={(e) =>
+                  field.onChange(
+                    e.target.value ? new Date(e.target.value) : null
+                  )
+                }
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

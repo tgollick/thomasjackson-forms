@@ -48,19 +48,22 @@ const LoginForm = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await mutation
-        .mutateAsync({
-          email: values.email,
-          password: values.password,
-        })
-        .then(() => {
-          router.push("/dashboard");
-        })
-        .finally(() => {
-          toast("Logged in as " + values.email);
-        });
+      const response = await mutation.mutateAsync({
+        email: values.email,
+        password: values.password,
+      });
+
+      if (!response) {
+        toast("Error fetching login API, please try again");
+      }
+
+      toast(response.message);
+
+      if (response.success) {
+        router.push(`/login/${values.email}/verify`);
+      }
     } catch (error) {
-      alert("Invalid Credentials");
+      toast("Error fetching login API, please try again: " + error);
     }
   }
 
@@ -107,7 +110,11 @@ const LoginForm = () => {
             />
 
             <Button type="submit" className="w-full">
-              Submit
+              {mutation.isPending ? (
+                <div className="loader"></div>
+              ) : (
+                <>Submit</>
+              )}
             </Button>
           </form>
         </Form>

@@ -11,6 +11,9 @@ const envSchema = z.object({
     .string()
     .min(1, "Please enter a JWT secret in enviroment variables"),
   NODE_ENV: z.string().min(1, "Must define the node enviroment"),
+  RESEND_API_KEY: z
+    .string()
+    .min(1, "Please provide a resend api key for email verfication"),
 });
 
 // Validate `process.env` against our schema

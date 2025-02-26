@@ -114,6 +114,7 @@ export default function EmploymentInfo({ form }: EmploymentInfoProps) {
                 type="number"
                 placeholder="Enter your current salary"
                 {...field}
+                onChange={(e) => field.onChange(Number(e.target.value))}
               />
             </FormControl>
             <FormMessage />
