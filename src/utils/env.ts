@@ -14,6 +14,14 @@ const envSchema = z.object({
   RESEND_API_KEY: z
     .string()
     .min(1, "Please provide a resend api key for email verfication"),
+  AWS_BUCKET_NAME: z.string().min(1, "Please provider a bucketname"),
+  AWS_BUCKET_REGION: z.string().min(1, "Please provider a AWS bucket region"),
+  AWS_ACCESS_KEY: z
+    .string()
+    .min(1, "Please find an access key for your S3 bucket"),
+  AWS_SECRET_ACCESS_KEY: z
+    .string()
+    .min(1, "Please provide a secret access key for your S3 bucket"),
 });
 
 // Validate `process.env` against our schema

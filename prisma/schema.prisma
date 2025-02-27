@@ -28,3 +28,234 @@ model VerificationCodes {
   createdAt DateTime @default(now())
   expiry    DateTime @default(dbgenerated("now() + interval '10 minutes'"))
 }
+
+enum CurrentSituation {
+  homeowner
+  rented
+  livingAtHomeOrWithFriends
+}
+
+enum MaritalStatus {
+  single
+  marriedOrPartner
+}
+
+enum PassportStatus {
+  valid
+  expired
+  none
+}
+
+enum EmploymentStatus {
+  fullTime
+  partTime
+  seekingEmployment
+  unemployed
+  retired
+}
+
+model RentalApplication {
+  id                     String             @id @default(uuid())
+  // Property & Rental Details
+  propertyAddress        String
+  rentalAmount           Float
+  moveInDate             DateTime
+
+  // Personal Details
+  fullName               String
+  currentAddress         String
+  postCode               String
+  timeAtAddress          String
+  telephoneNumber        String
+  emailAddress           String
+  dateOfBirth            DateTime
+
+  // Previous Addresses (one-to-many relation)
+  previousAddresses      PreviousAddress[]
+
+  // Living Situation
+  currentSituation       CurrentSituation
+  landlordDetailsId      String?            @unique
+  landlordDetails        LandlordDetails?   @relation(fields: [landlordDetailsId], references: [id])
+
+  // Household Information
+  maritalStatus          MaritalStatus
+  householdDetails       String
+
+  // Pets & Smoking
+  pets                   String?
+  smoker                 Boolean
+  allowInspection        Boolean
+
+  // Moving & Document Proofs
+  reasonForMoving        String
+  canSupplyBankStatements Boolean
+  proofOfAddress         Boolean
+  passportStatus         PassportStatus
+  drivingLicence         Boolean
+  birthCertificate       Boolean
+
+  // Employment Details
+  employmentStatus       EmploymentStatus
+  workHours              Int
+
+  // Employed Section (if applicable)
+  employedDetails        EmployedDetails?
+  // Previous Employer Details (if applicable)
+  previousEmployer       PreviousEmployer?
+  // Self-Employed Section (if applicable)
+  selfEmployedDetails    SelfEmployedDetails?
+
+  // Financial & Legal Information
+  countyCourtJudgements  Boolean
+  countyCourtDetails     String?
+  bankruptOrInsolvent    Boolean
+  bankruptcyDate         DateTime?
+  evicted                Boolean
+  lateRentalPayments     Boolean
+  latePaymentDetails     String?
+
+  // Guarantor Information
+  guarantor              Guarantor?
+
+  // Utilities Arrears
+  utilitiesArrears       UtilitiesArrears?
+
+  // Debts Payment
+  debtsPayment           Float?
+
+  // Next of Kin
+  nextOfKin              NextOfKin
+
+  // Declaration
+  declaration            Declaration
+
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+}
+
+model PreviousAddress {
+  id                   String             @id @default(uuid())
+  address              String
+  postCode             String
+  timeAtAddress        String
+  rentalApplicationId  String
+  rentalApplication    RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+}
+
+model LandlordDetails {
+  id                   String             @id @default(uuid())
+  name                 String
+  address              String
+  telephone            String
+  // Optional back relation
+  rentalApplication    RentalApplication?
+}
+
+model EmployedDetails {
+  id                      String             @id @default(uuid())
+  jobTitle                String
+  companyName             String
+  employerAddress         String
+  employerPostCode        String
+  employerTelephone       String
+  employerEmail           String
+  timeEmployed            String
+  currentSalary           Float
+  nationalInsuranceNumber String
+  rentalApplicationId     String
+  rentalApplication       RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+}
+
+model PreviousEmployer {
+  id                      String             @id @default(uuid())
+  jobTitle                String
+  companyName             String
+  employerAddress         String
+  employerPostCode        String
+  employerTelephone       String
+  employerEmail           String
+  timeEmployed            String
+  previousSalary          Float
+  rentalApplicationId     String
+  rentalApplication       RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+}
+
+model SelfEmployedDetails {
+  id                     String             @id @default(uuid())
+  jobTitle               String
+  companyName            String
+  companyAddress         String
+  rentalApplicationId    String
+  rentalApplication      RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+  
+  // One-to-one relations for accountant & business reference
+  accountant             AccountantDetails
+  businessReference      BusinessReference
+}
+
+model AccountantDetails {
+  id                      String             @id @default(uuid())
+  name                    String
+  address                 String
+  phone                   String
+  email                   String
+  selfEmployedDetailsId   String? 
+  selfEmployedDetails     SelfEmployedDetails? @relation(fields: [selfEmployedDetailsId], references: [id])
+}
+
+model BusinessReference {
+  id                      String             @id @default(uuid())
+  name                    String
+  address                 String
+  phone                   String
+  email                   String
+  selfEmployedDetailsId   String?
+  selfEmployedDetails     SelfEmployedDetails? @relation(fields: [selfEmployedDetailsId], references: [id])
+}
+
+model Guarantor {
+  id                   String             @id @default(uuid())
+  canProvide           Boolean
+  name                 String?
+  address              String?
+  postCode             String?
+  telephone            String?
+  email                String?
+  timeAtAddress        String?
+  // For simplicity, storing new address details as JSON. You can also create a separate model.
+  newAddressDetails    Json?
+  signature            String?
+  date                 DateTime?
+  rentalApplicationId  String
+  rentalApplication    RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+}
+
+model UtilitiesArrears {
+  id                  String             @id @default(uuid())
+  councilTax          Boolean
+  electric            Boolean
+  water               Boolean
+  tvLicence           Boolean
+  rentalApplicationId String
+  rentalApplication   RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+}
+
+model NextOfKin {
+  id                  String             @id @default(uuid())
+  name                String
+  address             String
+  contactDetails      String
+  relationship        String
+  rentalApplicationId String
+  rentalApplication   RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+}
+
+model Declaration {
+  id                  String             @id @default(uuid())
+  printedName         String
+  signature           String
+  date                DateTime
+  rentalApplicationId String
+  rentalApplication   RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+}

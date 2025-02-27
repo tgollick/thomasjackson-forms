@@ -10,18 +10,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  LucideCircleX,
-  LucideTrash,
-  LucideUpload,
-  LucideX,
-} from "lucide-react";
+import { useTRPC } from "@/trpc/client";
+import { prisma } from "@/utils/prisma";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { LucideTrash, LucideUpload } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 type Props = {};
 
 const FileUpload = (props: Props) => {
+  const trpc = useTRPC();
+  const uploadUrlMutation = useMutation(
+    trpc.file.getUploadURL.mutationOptions({})
+  );
+
+  const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | undefined>(undefined);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
 
@@ -39,6 +44,45 @@ const FileUpload = (props: Props) => {
       setPreviewUrl(url);
     }
   };
+
+  const uploadFile = async () => {
+    setLoading(true);
+    try {
+      if (file) {
+        toast("Your file upload has started...");
+        const uploadData = await uploadUrlMutation.mutateAsync({
+          fileName: file.name,
+        });
+
+        if (!uploadData?.uploadUrl || !uploadData || !uploadData.key) {
+          toast("Error fetching upload URL");
+          setLoading(false);
+          return new Error("Error fetching upload URL");
+        }
+
+        toast("Your file is uploading...");
+
+        await fetch(uploadData.uploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": file.type,
+          },
+          body: file,
+        });
+
+        toast("Your file was uploaded successfully!");
+        setLoading(false);
+      } else {
+        toast("Please make sure you have uploaded a file");
+        setLoading(false);
+        return new Error("Please make sure you have uploaded a file");
+      }
+    } catch (err) {
+      toast("There was an error uploading your file:" + err);
+      setLoading(false);
+      return console.error("There was an error uploading your file: " + err);
+    }
+  };
   return (
     <Card className="w-full h-full max-w-[500px]">
       <CardHeader>
@@ -49,7 +93,7 @@ const FileUpload = (props: Props) => {
       </CardHeader>
       <CardContent>
         {previewUrl != null ? (
-          <div className="w-full h-full aspect-square rounded-md overflow-hidden relative">
+          <div className="w-full h-full aspect-video rounded-md overflow-hidden relative">
             <Image
               src={previewUrl}
               height="300"
@@ -73,7 +117,7 @@ const FileUpload = (props: Props) => {
 
         {file == undefined ? (
           <label className="hover:cursor-pointer">
-            <div className="w-full rounded-md h-full aspect-square bg-gray-100 flex flex-col items-center justify-center gap-2">
+            <div className="w-full rounded-md h-full aspect-video bg-gray-100 flex flex-col items-center justify-center gap-2">
               <LucideUpload color={"grey"} size={"50"} />
               <p className="text-gray-500 font-normal text-sm">Upload a file</p>
               <Input
@@ -88,8 +132,15 @@ const FileUpload = (props: Props) => {
         )}
       </CardContent>
       <CardFooter>
-        <Button>
-          Upload File <LucideUpload />
+        <Button onClick={() => uploadFile()} className="w-full">
+          {loading ? (
+            <div className="loader"></div>
+          ) : (
+            <>
+              {" "}
+              Upload File <LucideUpload />
+            </>
+          )}
         </Button>
       </CardFooter>
     </Card>
