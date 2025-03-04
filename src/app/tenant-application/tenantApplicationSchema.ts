@@ -13,7 +13,9 @@ export const rentalApplicationSchema = z
     fullName: z.string().nonempty("Full name is required"),
     currentAddress: z.string().nonempty("Current address is required"),
     postCode: z.string().nonempty("Postcode is required"),
-    timeAtAddress: z.string().nonempty("Time at address is required"),
+    timeAtAddress: z.number({
+      invalid_type_error: "Time at address must be a number",
+    }),
     telephoneNumber: z.string().nonempty("Telephone number is required"),
     emailAddress: z.string().email("Invalid email address"),
     dateOfBirth: z.string().nonempty("Date of birth is required"),
@@ -54,7 +56,9 @@ export const rentalApplicationSchema = z
     // Pets & Smoking
     pets: z.string().optional(),
     smoker: z.boolean(),
-    allowInspection: z.boolean(),
+    allowInspection: z.literal(true, {
+      errorMap: () => ({ message: "You must agree to property inspections" }),
+    }),
 
     // Moving & Document Proofs
     reasonForMoving: z.string().nonempty("Reason for moving is required"),
@@ -227,7 +231,7 @@ export const defaultValues: RentalApplicationForm = {
   fullName: "",
   currentAddress: "",
   postCode: "",
-  timeAtAddress: "",
+  timeAtAddress: 0,
   telephoneNumber: "",
   emailAddress: "",
   dateOfBirth: "",
@@ -246,7 +250,7 @@ export const defaultValues: RentalApplicationForm = {
   // Pets & Smoking
   pets: "",
   smoker: false,
-  allowInspection: false,
+  allowInspection: true,
 
   // Moving & Document Proofs
   reasonForMoving: "",
@@ -319,7 +323,9 @@ export const personalDetailsSchema = z.object({
   fullName: z.string().nonempty("Full name is required"),
   currentAddress: z.string().nonempty("Current address is required"),
   postCode: z.string().nonempty("Postcode is required"),
-  timeAtAddress: z.string().nonempty("Time at address is required"),
+  timeAtAddress: z.number({
+    invalid_type_error: "Time at address must be a number",
+  }),
   telephoneNumber: z.string().nonempty("Telephone number is required"),
   emailAddress: z.string().email("Invalid email address"),
   dateOfBirth: z.string().nonempty("Date of birth is required"),
@@ -363,7 +369,9 @@ export const householdInformationSchema = z.object({
 export const petsSmokingSchema = z.object({
   pets: z.string().optional(),
   smoker: z.boolean(),
-  allowInspection: z.boolean(),
+  allowInspection: z.literal(true, {
+    errorMap: () => ({ message: "You must agree to property inspections" }),
+  }),
 });
 
 export const movingAndProofsSchema = z.object({

@@ -15,8 +15,6 @@ const PropertyDetails = () => {
 
   return (
     <section className="space-y-4">
-      <h2 className="text-xl font-bold">Property & Rental Details</h2>
-
       <FormField
         control={control}
         name="propertyAddress"
@@ -36,9 +34,20 @@ const PropertyDetails = () => {
         name="rentalAmount"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Monthly Rent</FormLabel>
+            <FormLabel>Monthly Rent (£)</FormLabel>
             <FormControl>
-              <Input {...field} type="number" placeholder="2000" />
+              <Input
+                {...field}
+                type="number"
+                placeholder="2000"
+                value={field.value ?? ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Convert to number or undefined if empty
+                  const numValue = value === "" ? undefined : Number(value);
+                  field.onChange(numValue);
+                }}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
