@@ -55,83 +55,86 @@ enum EmploymentStatus {
 }
 
 model RentalApplication {
-  id                     String             @id @default(uuid())
+  id                      String             @id @default(uuid())
   // Property & Rental Details
-  propertyAddress        String
-  rentalAmount           Float
-  moveInDate             DateTime
+  propertyAddress         String
+  rentalAmount            Float
+  moveInDate              DateTime
 
   // Personal Details
-  fullName               String
-  currentAddress         String
-  postCode               String
-  timeAtAddress          String
-  telephoneNumber        String
-  emailAddress           String
-  dateOfBirth            DateTime
+  fullName                String
+  currentAddress          String
+  postCode                String
+  timeAtAddress           String
+  telephoneNumber         String
+  emailAddress            String
+  dateOfBirth             DateTime
 
   // Previous Addresses (one-to-many relation)
-  previousAddresses      PreviousAddress[]
+  previousAddresses       PreviousAddress[]
 
   // Living Situation
-  currentSituation       CurrentSituation
-  landlordDetailsId      String?            @unique
-  landlordDetails        LandlordDetails?   @relation(fields: [landlordDetailsId], references: [id])
+  currentSituation        CurrentSituation
+  landlordDetails         LandlordDetails?   // Optional one-to-one relation
 
   // Household Information
-  maritalStatus          MaritalStatus
-  householdDetails       String
+  maritalStatus           MaritalStatus
+  householdDetails        String
 
   // Pets & Smoking
-  pets                   String?
-  smoker                 Boolean
-  allowInspection        Boolean
+  pets                    String?
+  smoker                  Boolean
+  allowInspection         Boolean
 
   // Moving & Document Proofs
-  reasonForMoving        String
+  reasonForMoving         String
   canSupplyBankStatements Boolean
-  proofOfAddress         Boolean
-  passportStatus         PassportStatus
-  drivingLicence         Boolean
-  birthCertificate       Boolean
+  proofOfAddress          Boolean
+  passportStatus          PassportStatus
+  drivingLicence          Boolean
+  birthCertificate        Boolean
 
   // Employment Details
-  employmentStatus       EmploymentStatus
-  workHours              Int
+  employmentStatus        EmploymentStatus
+  workHours               Int
 
   // Employed Section (if applicable)
-  employedDetails        EmployedDetails?
+  employedDetails         EmployedDetails?
   // Previous Employer Details (if applicable)
-  previousEmployer       PreviousEmployer?
+  previousEmployer        PreviousEmployer?
   // Self-Employed Section (if applicable)
-  selfEmployedDetails    SelfEmployedDetails?
+  selfEmployedDetails     SelfEmployedDetails?
 
   // Financial & Legal Information
-  countyCourtJudgements  Boolean
-  countyCourtDetails     String?
-  bankruptOrInsolvent    Boolean
-  bankruptcyDate         DateTime?
-  evicted                Boolean
-  lateRentalPayments     Boolean
-  latePaymentDetails     String?
+  countyCourtJudgements   Boolean
+  countyCourtDetails      String?
+  bankruptOrInsolvent     Boolean
+  bankruptcyDate          DateTime?
+  evicted                 Boolean
+  lateRentalPayments      Boolean
+  latePaymentDetails      String?
 
   // Guarantor Information
-  guarantor              Guarantor?
+  guarantor               Guarantor?
 
   // Utilities Arrears
-  utilitiesArrears       UtilitiesArrears?
+  utilitiesArrears        UtilitiesArrears?
 
   // Debts Payment
-  debtsPayment           Float?
+  debtsPayment            Float?
 
   // Next of Kin
-  nextOfKin              NextOfKin
+  nextOfKin               NextOfKin?
+
+  idFileKey String
+  proofOfAddressFileKey String
+  bankStatementsFileKey String
 
   // Declaration
-  declaration            Declaration
+  declaration             Declaration?
 
-  createdAt              DateTime           @default(now())
-  updatedAt              DateTime           @updatedAt
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
 }
 
 model PreviousAddress {
@@ -140,16 +143,16 @@ model PreviousAddress {
   postCode             String
   timeAtAddress        String
   rentalApplicationId  String
-  rentalApplication    RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+  rentalApplication    RentalApplication  @relation(fields: [rentalApplicationId], references: [id], onDelete: Cascade)
 }
 
 model LandlordDetails {
-  id                   String             @id @default(uuid())
-  name                 String
-  address              String
-  telephone            String
-  // Optional back relation
-  rentalApplication    RentalApplication?
+  id                    String             @id @default(uuid())
+  name                  String
+  address               String
+  telephone             String
+  rentalApplicationId   String             @unique
+  rentalApplication     RentalApplication  @relation(fields: [rentalApplicationId], references: [id], onDelete: Cascade)
 }
 
 model EmployedDetails {
@@ -163,8 +166,8 @@ model EmployedDetails {
   timeEmployed            String
   currentSalary           Float
   nationalInsuranceNumber String
-  rentalApplicationId     String
-  rentalApplication       RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+  rentalApplicationId     String             @unique
+  rentalApplication       RentalApplication  @relation(fields: [rentalApplicationId], references: [id], onDelete: Cascade)
 }
 
 model PreviousEmployer {
@@ -177,8 +180,8 @@ model PreviousEmployer {
   employerEmail           String
   timeEmployed            String
   previousSalary          Float
-  rentalApplicationId     String
-  rentalApplication       RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+  rentalApplicationId     String             @unique
+  rentalApplication       RentalApplication  @relation(fields: [rentalApplicationId], references: [id], onDelete: Cascade)
 }
 
 model SelfEmployedDetails {
@@ -186,32 +189,32 @@ model SelfEmployedDetails {
   jobTitle               String
   companyName            String
   companyAddress         String
-  rentalApplicationId    String
-  rentalApplication      RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+  rentalApplicationId    String             @unique
+  rentalApplication      RentalApplication  @relation(fields: [rentalApplicationId], references: [id], onDelete: Cascade)
   
-  // One-to-one relations for accountant & business reference
-  accountant             AccountantDetails
-  businessReference      BusinessReference
+  // One-to-one relations for accountant & business reference (required)
+  accountant             AccountantDetails?
+  businessReference      BusinessReference?
 }
 
 model AccountantDetails {
-  id                      String             @id @default(uuid())
+  id                      String              @id @default(uuid())
   name                    String
   address                 String
   phone                   String
   email                   String
-  selfEmployedDetailsId   String? 
-  selfEmployedDetails     SelfEmployedDetails? @relation(fields: [selfEmployedDetailsId], references: [id])
+  selfEmployedDetailsId   String              @unique
+  selfEmployedDetails     SelfEmployedDetails @relation(fields: [selfEmployedDetailsId], references: [id], onDelete: Cascade)
 }
 
 model BusinessReference {
-  id                      String             @id @default(uuid())
+  id                      String              @id @default(uuid())
   name                    String
   address                 String
   phone                   String
   email                   String
-  selfEmployedDetailsId   String?
-  selfEmployedDetails     SelfEmployedDetails? @relation(fields: [selfEmployedDetailsId], references: [id])
+  selfEmployedDetailsId   String              @unique
+  selfEmployedDetails     SelfEmployedDetails @relation(fields: [selfEmployedDetailsId], references: [id], onDelete: Cascade)
 }
 
 model Guarantor {
@@ -223,12 +226,11 @@ model Guarantor {
   telephone            String?
   email                String?
   timeAtAddress        String?
-  // For simplicity, storing new address details as JSON. You can also create a separate model.
   newAddressDetails    Json?
   signature            String?
   date                 DateTime?
-  rentalApplicationId  String
-  rentalApplication    RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+  rentalApplicationId  String             @unique
+  rentalApplication    RentalApplication  @relation(fields: [rentalApplicationId], references: [id], onDelete: Cascade)
 }
 
 model UtilitiesArrears {
@@ -237,8 +239,8 @@ model UtilitiesArrears {
   electric            Boolean
   water               Boolean
   tvLicence           Boolean
-  rentalApplicationId String
-  rentalApplication   RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+  rentalApplicationId String             @unique
+  rentalApplication   RentalApplication  @relation(fields: [rentalApplicationId], references: [id], onDelete: Cascade)
 }
 
 model NextOfKin {
@@ -247,8 +249,8 @@ model NextOfKin {
   address             String
   contactDetails      String
   relationship        String
-  rentalApplicationId String
-  rentalApplication   RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+  rentalApplicationId String             @unique
+  rentalApplication   RentalApplication  @relation(fields: [rentalApplicationId], references: [id], onDelete: Cascade)
 }
 
 model Declaration {
@@ -256,6 +258,6 @@ model Declaration {
   printedName         String
   signature           String
   date                DateTime
-  rentalApplicationId String
-  rentalApplication   RentalApplication  @relation(fields: [rentalApplicationId], references: [id])
+  rentalApplicationId String             @unique
+  rentalApplication   RentalApplication  @relation(fields: [rentalApplicationId], references: [id], onDelete: Cascade)
 }
