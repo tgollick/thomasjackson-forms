@@ -1,5 +1,9 @@
 import * as z from "zod";
 
+const dummyFile = new File([], "placeholder", {
+  type: "application/octet-stream",
+});
+
 export const rentalApplicationSchema = z
   .object({
     // Property & Rental Details
@@ -62,13 +66,18 @@ export const rentalApplicationSchema = z
 
     // Moving & Document Proofs
     reasonForMoving: z.string().nonempty("Reason for moving is required"),
-    canSupplyBankStatements: z.boolean(),
-    proofOfAddress: z.boolean(),
-    passportStatus: z.enum(["valid", "expired", "none"], {
-      errorMap: () => ({ message: "Select a valid passport status" }),
-    }),
-    drivingLicence: z.boolean(),
-    birthCertificate: z.boolean(),
+    proofOfAddress: z
+      .custom<File>()
+      .refine((file) => file instanceof File, "Proof of Address is required")
+      .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
+    bankStatement: z
+      .custom<File>()
+      .refine((file) => file instanceof File, "Bank Statements is required")
+      .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
+    id: z
+      .custom<File>()
+      .refine((file) => file instanceof File, "ID is required")
+      .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
 
     // Employment Details
     employmentStatus: z.enum(
@@ -254,11 +263,9 @@ export const defaultValues: RentalApplicationForm = {
 
   // Moving & Document Proofs
   reasonForMoving: "",
-  canSupplyBankStatements: false,
-  proofOfAddress: false,
-  passportStatus: "none",
-  drivingLicence: false,
-  birthCertificate: false,
+  proofOfAddress: dummyFile,
+  bankStatement: dummyFile,
+  id: dummyFile,
 
   // Employment Details
   employmentStatus: "fullTime",
@@ -376,13 +383,9 @@ export const petsSmokingSchema = z.object({
 
 export const movingAndProofsSchema = z.object({
   reasonForMoving: z.string().nonempty("Reason for moving is required"),
-  canSupplyBankStatements: z.boolean(),
-  proofOfAddress: z.boolean(),
-  passportStatus: z.enum(["valid", "expired", "none"], {
-    errorMap: () => ({ message: "Select a valid passport status" }),
-  }),
-  drivingLicence: z.boolean(),
-  birthCertificate: z.boolean(),
+  proofOfAddressKey: z.string().min(1, ""),
+  bankStatementKey: z.string().min(1, "Bank Statement Key is required"),
+  idKey: z.string().min(1, "ID Key is required"),
 });
 
 export const employmentDetailsSchema = z.object({

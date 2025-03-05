@@ -45,15 +45,19 @@ import NextOfKin from "./formSections/NextOfKin";
 import Declaration from "./formSections/Declaration";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  LucideArrowDown,
-  LucideArrowDown01,
-  LucideArrowUp,
-} from "lucide-react";
+import { toast } from "sonner";
+import { useTRPC } from "@/trpc/client";
+import { useMutation } from "@tanstack/react-query";
 
 export default function TenantApplicationForm() {
   const [section, setSection] = useState(0);
-  0;
+  const [isLoading, setIsLoading] = useState(false);
+
+  const trpc = useTRPC();
+  const uploadMutation = useMutation(
+    trpc.file.getUploadURL.mutationOptions({})
+  );
+
   const form = useForm<RentalApplicationForm>({
     resolver: zodResolver(rentalApplicationSchema),
     defaultValues,
@@ -68,12 +72,80 @@ export default function TenantApplicationForm() {
     if (isValid) {
       const yearsAA = form.getValues("timeAtAddress");
 
+      if (section != 6 && section != 1) {
+        setSection((currentSection) => currentSection + 1);
+      }
+
       if (section == 1 && yearsAA > 1) {
         setSection(3);
         return;
       }
 
-      setSection((currentSection) => currentSection + 1);
+      if (section == 6) {
+        const id = form.getValues("id");
+        const proofOfAddress = form.getValues("proofOfAddress");
+        const bankStatement = form.getValues("bankStatement");
+
+        console.log(id, proofOfAddress, bankStatement);
+
+        if (
+          id.name != "placeholder" &&
+          proofOfAddress.name != "placeholder" &&
+          bankStatement.name != "placeholder"
+        ) {
+          setIsLoading(true);
+
+          try {
+            const idResponse = await uploadMutation.mutateAsync({
+              fileName: id.name!,
+            });
+
+            await fetch(idResponse.uploadUrl, {
+              method: "PUT",
+              headers: {
+                "Content-Type": id.type,
+              },
+              body: id,
+            });
+
+            const poaResponse = await uploadMutation.mutateAsync({
+              fileName: proofOfAddress?.name!,
+            });
+
+            await fetch(poaResponse.uploadUrl, {
+              method: "PUT",
+              headers: {
+                "Content-Type": proofOfAddress.type,
+              },
+              body: proofOfAddress,
+            });
+
+            const bankStatementResponse = await uploadMutation.mutateAsync({
+              fileName: bankStatement?.name!,
+            });
+
+            await fetch(bankStatementResponse.uploadUrl, {
+              method: "PUT",
+              headers: {
+                "Content-Type": bankStatement.type,
+              },
+              body: bankStatement,
+            });
+
+            toast.success("Files uploaded successfully");
+            setIsLoading(false);
+            setSection((currentSection) => currentSection + 1);
+          } catch (err) {
+            toast.error("There was an error uploading your files");
+            setIsLoading(false);
+          }
+        } else {
+          toast.error(
+            "Please make sure all files are uploaded before submitting"
+          );
+          setIsLoading(false);
+        }
+      }
     }
   };
 
@@ -214,7 +286,7 @@ export default function TenantApplicationForm() {
                     handleNextSection(formSections[section].schema)
                   }
                 >
-                  Next
+                  {isLoading ? <div className="loader"></div> : "Next"}
                 </Button>
               ) : (
                 <Button type="submit">Submit</Button>
