@@ -72,7 +72,7 @@ export default function TenantApplicationForm() {
     if (isValid) {
       const yearsAA = form.getValues("timeAtAddress");
 
-      if (section != 6 && section != 1) {
+      if (section != 1) {
         setSection((currentSection) => currentSection + 1);
       }
 
@@ -81,71 +81,71 @@ export default function TenantApplicationForm() {
         return;
       }
 
-      if (section == 6) {
-        const id = form.getValues("id");
-        const proofOfAddress = form.getValues("proofOfAddress");
-        const bankStatement = form.getValues("bankStatement");
+      // if (section == 6) {
+      //   const id = form.getValues("id");
+      //   const proofOfAddress = form.getValues("proofOfAddress");
+      //   const bankStatement = form.getValues("bankStatement");
 
-        console.log(id, proofOfAddress, bankStatement);
+      //   console.log(id, proofOfAddress, bankStatement);
 
-        if (
-          id.name != "placeholder" &&
-          proofOfAddress.name != "placeholder" &&
-          bankStatement.name != "placeholder"
-        ) {
-          setIsLoading(true);
+      //   if (
+      //     id.name != "placeholder" &&
+      //     proofOfAddress.name != "placeholder" &&
+      //     bankStatement.name != "placeholder"
+      //   ) {
+      //     setIsLoading(true);
 
-          try {
-            const idResponse = await uploadMutation.mutateAsync({
-              fileName: id.name!,
-            });
+      //     try {
+      //       const idResponse = await uploadMutation.mutateAsync({
+      //         fileName: id.name!,
+      //       });
 
-            await fetch(idResponse.uploadUrl, {
-              method: "PUT",
-              headers: {
-                "Content-Type": id.type,
-              },
-              body: id,
-            });
+      //       await fetch(idResponse.uploadUrl, {
+      //         method: "PUT",
+      //         headers: {
+      //           "Content-Type": id.type,
+      //         },
+      //         body: id,
+      //       });
 
-            const poaResponse = await uploadMutation.mutateAsync({
-              fileName: proofOfAddress?.name!,
-            });
+      //       const poaResponse = await uploadMutation.mutateAsync({
+      //         fileName: proofOfAddress?.name!,
+      //       });
 
-            await fetch(poaResponse.uploadUrl, {
-              method: "PUT",
-              headers: {
-                "Content-Type": proofOfAddress.type,
-              },
-              body: proofOfAddress,
-            });
+      //       await fetch(poaResponse.uploadUrl, {
+      //         method: "PUT",
+      //         headers: {
+      //           "Content-Type": proofOfAddress.type,
+      //         },
+      //         body: proofOfAddress,
+      //       });
 
-            const bankStatementResponse = await uploadMutation.mutateAsync({
-              fileName: bankStatement?.name!,
-            });
+      //       const bankStatementResponse = await uploadMutation.mutateAsync({
+      //         fileName: bankStatement?.name!,
+      //       });
 
-            await fetch(bankStatementResponse.uploadUrl, {
-              method: "PUT",
-              headers: {
-                "Content-Type": bankStatement.type,
-              },
-              body: bankStatement,
-            });
+      //       await fetch(bankStatementResponse.uploadUrl, {
+      //         method: "PUT",
+      //         headers: {
+      //           "Content-Type": bankStatement.type,
+      //         },
+      //         body: bankStatement,
+      //       });
 
-            toast.success("Files uploaded successfully");
-            setIsLoading(false);
-            setSection((currentSection) => currentSection + 1);
-          } catch (err) {
-            toast.error("There was an error uploading your files");
-            setIsLoading(false);
-          }
-        } else {
-          toast.error(
-            "Please make sure all files are uploaded before submitting"
-          );
-          setIsLoading(false);
-        }
-      }
+      //       toast.success("Files uploaded successfully");
+      //       setIsLoading(false);
+      //       setSection((currentSection) => currentSection + 1);
+      //     } catch (err) {
+      //       toast.error("There was an error uploading your files");
+      //       setIsLoading(false);
+      //     }
+      //   } else {
+      //     toast.error(
+      //       "Please make sure all files are uploaded before submitting"
+      //     );
+      //     setIsLoading(false);
+      //   }
+      // }
     }
   };
 
