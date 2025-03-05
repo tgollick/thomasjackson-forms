@@ -68,17 +68,17 @@ export const rentalApplicationSchema = z
     reasonForMoving: z.string().nonempty("Reason for moving is required"),
     proofOfAddress: z
       .custom<File>()
-      .refine((file) => file instanceof File, "Proof of Address is required")
+      .refine((file) => file.name != "placeholder", "Proof of Address is required")
       .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
     bankStatement: z
       .custom<File>()
-      .refine((file) => file instanceof File, "Bank Statements is required")
+      .refine((file) => file.name != "placeholder", "Bank Statements is required")
       .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
     id: z
       .custom<File>()
-      .refine((file) => file instanceof File, "ID is required")
+      .refine((file) => file.name != "placeholder", "ID is required")
       .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
-
+    
     // Employment Details
     employmentStatus: z.enum(
       ["fullTime", "partTime", "seekingEmployment", "unemployed", "retired"],

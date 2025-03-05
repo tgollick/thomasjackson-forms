@@ -35,7 +35,7 @@ import PetsSmoking from "./formSections/PetsSmoking";
 import MovingDocumentProofs from "./formSections/MovingDocumentProofs";
 import EmploymentDetails from "./formSections/EmploymentDetails";
 import EmployedDetails from "./formSections/EmployedDetails";
-import PreviousEmployerDetails from "./formSections/PreviousEmployerDetails";
+import PreviousEmployer from "./formSections/PreviousEmployerDetails";
 import SelfEmployedDetails from "./formSections/SelfEmployedDetails";
 import FinancialLegalInformation from "./formSections/FinancialLegalInformation";
 import GuarantorInformation from "./formSections/GuarantorInformation";
@@ -212,7 +212,7 @@ export default function TenantApplicationForm() {
     {
       title: "Previous Employer Details",
       description: "Enter details of your previous employer (if applicable)",
-      component: <PreviousEmployerDetails />,
+      component: <PreviousEmployer />,
       schema: previousEmployerSchema,
     },
     {
