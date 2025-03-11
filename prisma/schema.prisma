@@ -52,6 +52,7 @@ enum EmploymentStatus {
   seekingEmployment
   unemployed
   retired
+  selfEmployed
 }
 
 model RentalApplication {
@@ -88,11 +89,9 @@ model RentalApplication {
 
   // Moving & Document Proofs
   reasonForMoving         String
-  canSupplyBankStatements Boolean
-  proofOfAddress          Boolean
-  passportStatus          PassportStatus
-  drivingLicence          Boolean
-  birthCertificate        Boolean
+  idFileKey String
+  proofOfAddressFileKey String
+  bankStatementsFileKey String
 
   // Employment Details
   employmentStatus        EmploymentStatus
@@ -125,10 +124,6 @@ model RentalApplication {
 
   // Next of Kin
   nextOfKin               NextOfKin?
-
-  idFileKey String
-  proofOfAddressFileKey String
-  bankStatementsFileKey String
 
   // Declaration
   declaration             Declaration?

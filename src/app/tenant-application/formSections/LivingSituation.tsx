@@ -5,6 +5,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,6 +16,8 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { useFormContext } from "react-hook-form";
+import { Building, Home, MapPin, Phone, User, Users } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 const LivingSituation = () => {
   const { control, watch, setValue } = useFormContext();
@@ -34,82 +37,155 @@ const LivingSituation = () => {
   };
 
   return (
-    <section className="space-y-6">
-      {/* Current Situation Select */}
-      <FormField
-        control={control}
-        name="currentSituation"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Current Living Situation</FormLabel>
-            <Select onValueChange={handleSituationChange} value={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your current situation" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="homeowner">Homeowner</SelectItem>
-                <SelectItem value="rented">Renting Accommodation</SelectItem>
-                <SelectItem value="livingAtHomeOrWithFriends">
-                  Living with Family/Friends
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+    <div className="space-y-6">
+      {/* Situation Selection Card */}
+      <Card>
+        <CardContent className="pt-6">
+          <FormField
+            control={control}
+            name="currentSituation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center gap-2">
+                  <Home className="h-4 w-4 text-primary" />
+                  Current Living Situation
+                </FormLabel>
+                <FormDescription className="text-xs text-muted-foreground mt-1">
+                  Select the option that best describes your current housing arrangement
+                </FormDescription>
+                <div className="mt-3">
+                  <Select onValueChange={handleSituationChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full border border-muted-border focus:border-primary focus:ring-primary rounded-md h-10">
+                        <SelectValue placeholder="Select your current situation" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="bg-white border border-muted-border shadow-md rounded-md">
+                      <SelectItem value="homeowner" className="flex items-center py-2.5">
+                        <div className="flex items-center">
+                          <Building className="h-4 w-4 text-primary mr-2" />
+                          Homeowner
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="rented" className="flex items-center py-2.5">
+                        <div className="flex items-center">
+                          <Building className="h-4 w-4 text-primary mr-2" />
+                          Renting Accommodation
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="livingAtHomeOrWithFriends" className="flex items-center py-2.5">
+                        <div className="flex items-center">
+                          <Users className="h-4 w-4 text-primary mr-2" />
+                          Living with Family/Friends
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </CardContent>
+      </Card>
 
       {/* Conditional Landlord Details */}
       {currentSituation === "rented" && (
-        <div className="space-y-4 border p-4 rounded-lg">
-          <h3 className="font-medium">Landlord Information</h3>
+        <Card className="animate-in fade-in slide-in-from-top-5 duration-300">
+          <CardHeader className="pb-3">
+            <div className="flex items-center mb-1">
+              <User className="h-5 w-5 text-primary mr-2" />
+              <h3 className="font-medium">Current Landlord Details</h3>
+            </div>
+            <FormDescription className="text-xs">
+              Please provide your current landlord's information for reference purposes
+            </FormDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div className="grid md:grid-cols-2 gap-5">
+              <FormField
+                control={control}
+                name="landlordDetails.name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Landlord Name</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        placeholder="John Smith" 
+                        className="pl-3 h-10 border border-muted-border focus:border-primary focus:ring-primary rounded-md shadow-sm"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <FormField
-            control={control}
-            name="landlordDetails.name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Landlord Name</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="John Smith" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              <FormField
+                control={control}
+                name="landlordDetails.telephone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-primary" />
+                      Landlord Telephone
+                    </FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        placeholder="07700 900123" 
+                        className="pl-3 h-10 border border-muted-border focus:border-primary focus:ring-primary rounded-md shadow-sm"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-          <FormField
-            control={control}
-            name="landlordDetails.address"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Landlord Address</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="123 Rental Lane" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={control}
+              name="landlordDetails.address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    Landlord Address
+                  </FormLabel>
+                  <FormControl>
+                    <Input 
+                      {...field} 
+                      placeholder="123 Rental Lane" 
+                      className="pl-3 h-10 border border-muted-border focus:border-primary focus:ring-primary rounded-md shadow-sm"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={control}
-            name="landlordDetails.telephone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Landlord Telephone</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="07123456789" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+            <FormField
+              control={control}
+              name="landlordDetails.email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Landlord Email</FormLabel>
+                  <FormControl>
+                    <Input 
+                      {...field} 
+                      type="email"
+                      placeholder="landlord@example.com" 
+                      className="pl-3 h-10 border border-muted-border focus:border-primary focus:ring-primary rounded-md shadow-sm"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
       )}
-    </section>
+    </div>
   );
 };
 
