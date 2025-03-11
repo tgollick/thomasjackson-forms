@@ -68,9 +68,9 @@ const PersonalDetails = () => {
         />
       </div>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <h3 className="text-sm font-medium">Current Address</h3>
+      <Card className="p-0">
+        <CardHeader>
+          <h3 className="text-md font-medium">Current Address</h3>
         </CardHeader>
         <CardContent className="space-y-4">
           <FormField

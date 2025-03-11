@@ -18,14 +18,10 @@ const PetsSmoking = () => {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader className="pb-3">
-          <h3 className="font-medium flex items-center gap-2">
+                <h3 className="font-medium flex items-center gap-2">
             <Shell className="h-4 w-4 text-primary" />
             Smoking Information
           </h3>
-        </CardHeader>
-        <CardContent>
           {/* Smoker Checkbox */}
           <FormField
             control={control}
@@ -48,18 +44,12 @@ const PetsSmoking = () => {
               </FormItem>
             )}
           />
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader className="pb-3">
+          {/* Pets Information */}
           <h3 className="font-medium flex items-center gap-2">
             <Cat className="h-4 w-4 text-primary" />
             Pet Information
           </h3>
-        </CardHeader>
-        <CardContent>
-          {/* Pets Information */}
           <FormField
             control={control}
             name="pets"
@@ -81,11 +71,8 @@ const PetsSmoking = () => {
               </FormItem>
             )}
           />
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardContent className="pt-6">
+
           {/* Mandatory Inspection Agreement */}
           <FormField
             control={control}
@@ -111,8 +98,7 @@ const PetsSmoking = () => {
               </FormItem>
             )}
           />
-        </CardContent>
-      </Card>
+
     </div>
   );
 };

@@ -18,8 +18,6 @@ const GuarantorInformation = () => {
 
   return (
     <section className="space-y-6">
-      <h2 className="text-xl font-bold">Guarantor Information</h2>
-
       <div className="space-y-4">
         <FormField
           control={control}

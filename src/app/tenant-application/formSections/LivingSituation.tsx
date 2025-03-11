@@ -39,8 +39,6 @@ const LivingSituation = () => {
   return (
     <div className="space-y-6">
       {/* Situation Selection Card */}
-      <Card>
-        <CardContent className="pt-6">
           <FormField
             control={control}
             name="currentSituation"
@@ -60,7 +58,7 @@ const LivingSituation = () => {
                         <SelectValue placeholder="Select your current situation" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="bg-white border border-muted-border shadow-md rounded-md">
+                    <SelectContent className="bg-background border border-muted-border shadow-md rounded-md">
                       <SelectItem value="homeowner" className="flex items-center py-2.5">
                         <div className="flex items-center">
                           <Building className="h-4 w-4 text-primary mr-2" />
@@ -86,8 +84,7 @@ const LivingSituation = () => {
               </FormItem>
             )}
           />
-        </CardContent>
-      </Card>
+ 
 
       {/* Conditional Landlord Details */}
       {currentSituation === "rented" && (

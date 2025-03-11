@@ -24,14 +24,6 @@ const EmploymentDetails = () => {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader className="pb-3">
-          <h3 className="font-medium flex items-center gap-2">
-            <Briefcase className="h-4 w-4 text-primary" />
-            Employment Information
-          </h3>
-        </CardHeader>
-        <CardContent className="space-y-4">
           {/* Employment Status Dropdown */}
           <FormField
             control={control}
@@ -90,8 +82,6 @@ const EmploymentDetails = () => {
               </FormItem>
             )}
           />
-        </CardContent>
-      </Card>
     </div>
   );
 };

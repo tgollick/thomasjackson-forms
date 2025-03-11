@@ -346,6 +346,8 @@ export default function TenantApplicationForm() {
   const onSubmit = async (values: RentalApplicationForm) => {
     try {
       setIsLoading(true);
+
+      await handleFileUpload();
       
       // Make sure files have been uploaded successfully
       const id = values.id;
@@ -373,8 +375,7 @@ export default function TenantApplicationForm() {
       if (response.success) {
         toast.success(response.message);
         router.push("/thank-you")
-        // Optionally redirect to a success page or reset form
-        // router.push(`/application-submitted/${response.applicationId}`);
+
       } else {
         toast.error(response.message || "There was an error submitting your application.");
       }
@@ -422,18 +423,26 @@ export default function TenantApplicationForm() {
         
         {/* Step indicators */}
         <div className="hidden md:flex mb-8 justify-between">
-          {formSections.map((_, idx) => (
-            <div 
-              key={idx} 
-              className={cn(
-                "w-3 h-3 rounded-full transition-all",
-                idx <= section ? "bg-primary" : "bg-muted",
-                (idx === 3 && section < 3 && form.getValues("timeAtAddress") > 2) && "opacity-30",
-                (idx === 9 && !["fullTime", "partTime"].includes(form.getValues("employmentStatus"))) && "opacity-30",
-                (idx === 10 && form.getValues("employmentStatus") !== "selfEmployed") && "opacity-30"
-              )}
-            />
-          ))}
+          {formSections.map((_, idx) => {
+            // Determine if this section should be considered completed even if skipped
+            const isSkippedSection = 
+              // Previous addresses skipped when time at address > 2
+              (idx === 2 && form.getValues("timeAtAddress") > 2) ||
+              // Previous employer skipped for non-employed
+              (idx === 9 && !["fullTime", "partTime"].includes(form.getValues("employmentStatus"))) ||
+              // Self-employed details skipped for non-self-employed
+              (idx === 10 && form.getValues("employmentStatus") !== "selfEmployed");
+              
+            return (
+              <div 
+                key={idx} 
+                className={cn(
+                  "w-3 h-3 rounded-full transition-all",
+                  (idx <= section || (section > idx && isSkippedSection)) ? "bg-primary" : "bg-muted"
+                )}
+              />
+            );
+          })}
         </div>
 
         <Card className="overflow-hidden shadow-lg border">

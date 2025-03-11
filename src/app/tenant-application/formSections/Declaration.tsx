@@ -17,18 +17,8 @@ const Declaration = () => {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader className="pb-3">
-          <h3 className="text-xl font-medium flex items-center gap-2">
-            <BookCheck className="h-5 w-5 text-primary" />
-            Final Declaration
-          </h3>
-          <FormDescription>
-            By signing below, you confirm that all information provided in this application is true and accurate to the best of your knowledge.
-          </FormDescription>
-        </CardHeader>
+
         
-        <CardContent className="space-y-4">
           <FormField
             control={control}
             name="declaration.printedName"
@@ -90,8 +80,6 @@ const Declaration = () => {
               )}
             />
           </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
