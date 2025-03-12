@@ -285,7 +285,17 @@ export const defaultValues: RentalApplicationForm = {
   workHours: 0,
 
   // Employed Section
-  employedDetails: undefined,
+  employedDetails: {
+    jobTitle: "",
+    companyName: "",
+    employerAddress: "",
+    employerPostCode: "",
+    employerTelephone: "",
+    employerEmail: "",
+    timeEmployed: "",
+    currentSalary: 0,
+    nationalInsuranceNumber: "",
+  },
 
   // Previous Employer Details
   previousEmployer: undefined,
@@ -396,9 +406,21 @@ export const petsSmokingSchema = z.object({
 
 export const movingAndProofsSchema = z.object({
   reasonForMoving: z.string().nonempty("Reason for moving is required"),
-  proofOfAddressKey: z.string().min(1, ""),
-  bankStatementKey: z.string().min(1, "Bank Statement Key is required"),
-  idKey: z.string().min(1, "ID Key is required"),
+  proofOfAddress: z
+    .custom<File>()
+    .refine(
+      (file) => file.name != "placeholder",
+      "Proof of Address is required"
+    )
+    .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
+  bankStatement: z
+    .custom<File>()
+    .refine((file) => file.name != "placeholder", "Bank Statements is required")
+    .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
+  id: z
+    .custom<File>()
+    .refine((file) => file.name != "placeholder", "ID is required")
+    .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
 });
 
 export const employmentDetailsSchema = z.object({

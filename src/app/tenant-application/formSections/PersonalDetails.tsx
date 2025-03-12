@@ -33,9 +33,7 @@ const PersonalDetails = () => {
                 <div className="relative">
                   <Input 
                     {...field} 
-                    placeholder="John Smith" 
-                    className="pl-3 h-10 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                  />
+                    placeholder="John Smith"                   />
                 </div>
               </FormControl>
               <FormMessage />
@@ -58,7 +56,6 @@ const PersonalDetails = () => {
                     {...field}
                     type="date"
                     placeholder="DD/MM/YYYY"
-                    className="pl-3 h-10 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                   />
                 </div>
               </FormControl>
@@ -86,7 +83,6 @@ const PersonalDetails = () => {
                   <Input 
                     {...field} 
                     placeholder="123 Wilson Lane"
-                    className="pl-3 h-10 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                   />
                 </FormControl>
                 <FormMessage />
@@ -105,7 +101,6 @@ const PersonalDetails = () => {
                     <Input 
                       {...field} 
                       placeholder="CT4 2QN"
-                      className="pl-3 h-10 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                     />
                   </FormControl>
                   <FormMessage />
@@ -126,7 +121,6 @@ const PersonalDetails = () => {
                       step="0.1"
                       min="0"
                       placeholder="1.5"
-                      className="pl-3 h-10 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
@@ -155,7 +149,6 @@ const PersonalDetails = () => {
                 <Input 
                   {...field} 
                   placeholder="07818302999"
-                  className="pl-3 h-10 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                 />
               </FormControl>
               <FormMessage />
@@ -177,7 +170,6 @@ const PersonalDetails = () => {
                   {...field} 
                   type="email"
                   placeholder="john.smith@example.com"
-                  className="pl-3 h-10 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                 />
               </FormControl>
               <FormMessage />

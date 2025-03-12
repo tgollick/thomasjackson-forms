@@ -16,6 +16,7 @@ export async function createContext() {
       userId = payload.userId;
     } else {
       cookieStore.delete("authToken");
+      userId = null;
     }
   }
 

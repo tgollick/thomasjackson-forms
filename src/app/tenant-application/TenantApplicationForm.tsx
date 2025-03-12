@@ -44,14 +44,44 @@ import DebtsPayment from "./formSections/DebtsPayment";
 import NextOfKin from "./formSections/NextOfKin";
 import Declaration from "./formSections/Declaration";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import { useTRPC } from "@/trpc/client";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, ChevronRight, Home, User, Calendar, FileText, BriefcaseBusiness, FileCheck, Shell, Users, FileQuestion, Ban, BadgePoundSterling, HeartHandshake, FolderArchive, ArrowLeft, ArrowRight } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronRight,
+  Home,
+  User,
+  Calendar,
+  FileText,
+  BriefcaseBusiness,
+  FileCheck,
+  Shell,
+  Users,
+  FileQuestion,
+  Ban,
+  BadgePoundSterling,
+  HeartHandshake,
+  FolderArchive,
+  ArrowLeft,
+  ArrowRight,
+} from "lucide-react";
+import Image from "next/image";
+import tjLogo from "../../../public/tj-logo.svg";
+import {
+  CurrentSituation,
+  EmploymentStatus,
+  MaritalStatus,
+} from "@prisma/client";
 
 const formSections = [
   {
@@ -186,7 +216,10 @@ export default function TenantApplicationForm() {
   const uploadMutation = useMutation(
     trpc.file.getUploadURL.mutationOptions({})
   );
-  const tenancyApplicationMutation = useMutation(trpc.form.tenantApplicationSubmission.mutationOptions({}));
+
+  const tenancyApplicationMutation = useMutation(
+    trpc.form.tenantApplicationSubmission.mutationOptions()
+  );
 
   const form = useForm<RentalApplicationForm>({
     resolver: zodResolver(rentalApplicationSchema),
@@ -284,8 +317,6 @@ export default function TenantApplicationForm() {
     const proofOfAddress = form.getValues("proofOfAddress");
     const bankStatement = form.getValues("bankStatement");
 
-    console.log(id, proofOfAddress, bankStatement);
-
     if (
       id.name != "placeholder" &&
       proofOfAddress.name != "placeholder" &&
@@ -332,56 +363,103 @@ export default function TenantApplicationForm() {
 
         toast.success("Files uploaded successfully");
         setIsLoading(false);
-        setSection((currentSection) => currentSection + 1);
+        // In handleFileUpload function
+        return {
+          success: true,
+          idFileKey: idResponse.key, // Changed from idKey
+          bankStatementsFileKey: bankStatementResponse.key, // Changed from bankStatementKey
+          proofOfAddressFileKey: poaResponse.key, // Changed from proofOfAddressKey
+        };
       } catch (err) {
         toast.error("There was an error uploading your files");
         setIsLoading(false);
+        return false;
       }
     } else {
       toast.error("Please make sure all files are uploaded before submitting");
       setIsLoading(false);
+      return false;
     }
   };
 
   const onSubmit = async (values: RentalApplicationForm) => {
+    const { proofOfAddress, bankStatement, id, ...cleanedValues } = values;
+
     try {
       setIsLoading(true);
 
-      await handleFileUpload();
-      
-      // Make sure files have been uploaded successfully
-      const id = values.id;
-      const proofOfAddress = values.proofOfAddress;
-      const bankStatement = values.bankStatement;
-      
-      if (
-        id.name === "placeholder" || 
-        proofOfAddress.name === "placeholder" || 
-        bankStatement.name === "placeholder"
-      ) {
-        toast.error("Please make sure all required documents are uploaded.");
+      const uploadSuccess = await handleFileUpload();
+
+      // Only proceed if file upload was successful
+      if (!uploadSuccess) {
         setIsLoading(false);
         return;
       }
-      
-      const response = await tenancyApplicationMutation.mutateAsync({
-        ...values,
-        // Use the file names stored in S3 as file keys
-        idFileKey: id.name,
-        proofOfAddressFileKey: proofOfAddress.name,
-        bankStatementsFileKey: bankStatement.name
-      });
-      
-      if (response.success) {
-        toast.success(response.message);
-        router.push("/thank-you")
 
+      // const payload = {
+      //   ...cleanedValues,
+      //   idFileKey: uploadSuccess.idFileKey,
+      //   proofOfAddressFileKey: uploadSuccess.proofOfAddressFileKey,
+      //   bankStatementsFileKey: uploadSuccess.bankStatementsFileKey,
+      // };
+
+      const minimalTestData = {
+        propertyAddress: "Test Address",
+        rentalAmount: 1000,
+        moveInDate: new Date().toISOString(),
+        fullName: "Test Name",
+        currentAddress: "Test Current Address",
+        postCode: "Test Postcode",
+        timeAtAddress: "1 year", // Corrected to be a string
+        telephoneNumber: "123-456-7890",
+        emailAddress: "test@example.com",
+        dateOfBirth: new Date(1990, 0, 1).toISOString(),
+        currentSituation: CurrentSituation.rented,
+        maritalStatus: MaritalStatus.single,
+        householdDetails: "Test Household Details",
+        smoker: false,
+        allowInspection: true,
+        reasonForMoving: "Test Reason",
+        idFileKey: "test-id-file-key",
+        proofOfAddressFileKey: "test-proof-of-address-file-key",
+        bankStatementsFileKey: "test-bank-statements-file-key",
+        employmentStatus: EmploymentStatus.fullTime,
+        workHours: 40,
+        countyCourtJudgements: false,
+        bankruptOrInsolvent: false,
+        evicted: false,
+        lateRentalPayments: false,
+        nextOfKin: {
+          name: "Test Kin Name",
+          address: "Test Kin Address",
+          contactDetails: "Test Kin Contact",
+          relationship: "Test Kin Relationship",
+        },
+        declaration: {
+          printedName: "Test Printed Name",
+          signature: "Test Signature",
+          date: new Date().toISOString(),
+        },
+      };
+
+      const response = await tenancyApplicationMutation.mutateAsync(
+        minimalTestData
+      );
+
+      if (response.success) {
+        toast.success(String(response.message));
+        router.push("/thank-you");
       } else {
-        toast.error(response.message || "There was an error submitting your application.");
+        toast.error(
+          String(response.message) ||
+            "There was an error submitting your application."
+        );
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("There was an error submitting your application. Please try again.");
+      toast.error(
+        "There was an error submitting your application. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -390,15 +468,24 @@ export default function TenantApplicationForm() {
   return (
     <div className="min-h-screen bg-background py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
+        <Image
+          src={tjLogo}
+          alt="ThomasJackson Logo"
+          width="62"
+          height="62"
+          className="mx-auto mb-8"
+        />
+
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-foreground tracking-tight mb-2">
             Tenant Application Form
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Complete all sections to submit your application. Your information will be reviewed by our team.
+            Complete all sections to submit your application. Your information
+            will be reviewed by our team.
           </p>
         </div>
-        
+
         {/* Progress indicator */}
         <div className="mb-8">
           <div className="relative pt-1">
@@ -420,25 +507,31 @@ export default function TenantApplicationForm() {
             </div>
           </div>
         </div>
-        
+
         {/* Step indicators */}
         <div className="hidden md:flex mb-8 justify-between">
           {formSections.map((_, idx) => {
             // Determine if this section should be considered completed even if skipped
-            const isSkippedSection = 
+            const isSkippedSection =
               // Previous addresses skipped when time at address > 2
               (idx === 2 && form.getValues("timeAtAddress") > 2) ||
               // Previous employer skipped for non-employed
-              (idx === 9 && !["fullTime", "partTime"].includes(form.getValues("employmentStatus"))) ||
+              (idx === 9 &&
+                !["fullTime", "partTime"].includes(
+                  form.getValues("employmentStatus")
+                )) ||
               // Self-employed details skipped for non-self-employed
-              (idx === 10 && form.getValues("employmentStatus") !== "selfEmployed");
-              
+              (idx === 10 &&
+                form.getValues("employmentStatus") !== "selfEmployed");
+
             return (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 className={cn(
                   "w-3 h-3 rounded-full transition-all",
-                  (idx <= section || (section > idx && isSkippedSection)) ? "bg-primary" : "bg-muted"
+                  idx <= section || (section > idx && isSkippedSection)
+                    ? "bg-primary"
+                    : "bg-muted"
                 )}
               />
             );
@@ -452,12 +545,16 @@ export default function TenantApplicationForm() {
                 {formSections[section].icon}
               </div>
               <div>
-                <h2 className="text-xl font-bold text-card-foreground">{formSections[section].title}</h2>
-                <p className="text-muted-foreground">{formSections[section].description}</p>
+                <h2 className="text-xl font-bold text-card-foreground">
+                  {formSections[section].title}
+                </h2>
+                <p className="text-muted-foreground">
+                  {formSections[section].description}
+                </p>
               </div>
             </div>
           </CardHeader>
-          
+
           <FormProvider {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <CardContent className="p-8">
@@ -473,11 +570,11 @@ export default function TenantApplicationForm() {
                   </motion.div>
                 </AnimatePresence>
               </CardContent>
-              
+
               <CardFooter className="flex justify-between items-center p-6 bg-muted/40 border-t">
                 {section > 0 && (
-                  <Button 
-                    type="button" 
+                  <Button
+                    type="button"
                     onClick={() => handlePreviousSection()}
                     variant="outline"
                     className="flex items-center gap-1"
@@ -486,13 +583,15 @@ export default function TenantApplicationForm() {
                     Previous
                   </Button>
                 )}
-                
+
                 {section === 0 && <div />}
-                
+
                 {section < formSections.length - 1 ? (
                   <Button
                     type="button"
-                    onClick={() => handleNextSection(formSections[section].schema)}
+                    onClick={() =>
+                      handleNextSection(formSections[section].schema)
+                    }
                     className="ml-auto flex items-center gap-1"
                   >
                     {isLoading ? (
@@ -505,12 +604,14 @@ export default function TenantApplicationForm() {
                     )}
                   </Button>
                 ) : (
-                  <Button 
-                    type="button" 
+                  <Button
+                    type="button"
                     onClick={async () => {
                       // Validate the last section before submitting
                       const isValid = await form.trigger(
-                        Object.keys(formSections[section].schema.shape) as (keyof RentalApplicationForm)[]
+                        Object.keys(
+                          formSections[section].schema.shape
+                        ) as (keyof RentalApplicationForm)[]
                       );
                       if (isValid) {
                         form.handleSubmit(onSubmit)();

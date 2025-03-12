@@ -13,18 +13,18 @@ import React, { useState } from "react";
 import { FileIcon, UploadIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const FileUpload = ({ 
-  field, 
-  fieldName, 
-  accept = ".pdf,.jpg,.jpeg,.png" 
-}: { 
-  field: any; 
-  fieldName: string; 
+const FileUpload = ({
+  field,
+  fieldName,
+  accept = ".pdf,.jpg,.jpeg,.png",
+}: {
+  field: any;
+  fieldName: string;
   accept?: string;
 }) => {
   const { getValues } = useFormContext();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  
+
   const getFile = () => {
     const file = getValues(fieldName) as File;
     return file && file.name !== "placeholder" ? file : null;
@@ -44,12 +44,14 @@ const FileUpload = ({
   return (
     <div className="w-full">
       {!file ? (
-        <div 
+        <div
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+          className="border-2 border-dashed border-s-muted rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-muted transition-colors"
         >
           <UploadIcon className="h-8 w-8 text-gray-400 mb-2" />
-          <p className="text-sm text-gray-500 mb-1">Click to upload or drag and drop</p>
+          <p className="text-sm text-gray-500 mb-1">
+            Click to upload or drag and drop
+          </p>
           <p className="text-xs text-gray-400">PDF, JPG, JPEG, PNG</p>
           <Input
             ref={fileInputRef}
@@ -60,7 +62,7 @@ const FileUpload = ({
           />
         </div>
       ) : (
-        <div className="border rounded-lg p-4 bg-gray-50">
+        <div className="border rounded-lg p-4 bg-muted">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center">
               <FileIcon className="h-5 w-5 text-blue-500 mr-2" />
@@ -88,9 +90,9 @@ const FileUpload = ({
               </Button>
             </div>
           </div>
-          
+
           {isImage && (
-            <div className="mt-2 relative w-full h-32 bg-gray-100 rounded overflow-hidden">
+            <div className="mt-2 relative w-full h-32 bg-muted rounded overflow-hidden">
               <img
                 src={URL.createObjectURL(file)}
                 alt="Preview"
@@ -98,7 +100,7 @@ const FileUpload = ({
               />
             </div>
           )}
-          
+
           <Input
             ref={fileInputRef}
             type="file"
