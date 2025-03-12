@@ -359,8 +359,7 @@ export const formRouter = createTRPCRouter({
         return {
           success: true,
           applicationId: rentalApplication.id,
-          message:
-            "Simplified application submitted successfully for debugging.",
+          message: "Application submitted successfully!",
         };
       } catch (err) {
         console.error("Error submitting rental application (simplified):", err);

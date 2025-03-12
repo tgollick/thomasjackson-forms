@@ -1,4 +1,9 @@
 import * as z from "zod";
+import {
+  CurrentSituation,
+  MaritalStatus,
+  EmploymentStatus,
+} from "@prisma/client";
 
 const dummyFile = new File([], "placeholder", {
   type: "application/octet-stream",
@@ -17,9 +22,7 @@ export const rentalApplicationSchema = z
     fullName: z.string().nonempty("Full name is required"),
     currentAddress: z.string().nonempty("Current address is required"),
     postCode: z.string().nonempty("Postcode is required"),
-    timeAtAddress: z.number({
-      invalid_type_error: "Time at address must be a number",
-    }),
+    timeAtAddress: z.string().nonempty("Time at address is required"), // Changed to String
     telephoneNumber: z.string().nonempty("Telephone number is required"),
     emailAddress: z.string().email("Invalid email address"),
     dateOfBirth: z.string().nonempty("Date of birth is required"),
@@ -36,12 +39,9 @@ export const rentalApplicationSchema = z
       .optional(),
 
     // Living Situation
-    currentSituation: z.enum(
-      ["homeowner", "rented", "livingAtHomeOrWithFriends"],
-      {
-        errorMap: () => ({ message: "Select a valid living situation" }),
-      }
-    ),
+    currentSituation: z.nativeEnum(CurrentSituation, {
+      errorMap: () => ({ message: "Select a valid living situation" }),
+    }),
     // Only required if currentSituation === "rented"
     landlordDetails: z
       .object({
@@ -52,7 +52,7 @@ export const rentalApplicationSchema = z
       .optional(),
 
     // Household Information
-    maritalStatus: z.enum(["single", "marriedOrPartner"], {
+    maritalStatus: z.nativeEnum(MaritalStatus, {
       errorMap: () => ({ message: "Select a valid marital status" }),
     }),
     householdDetails: z.string().nonempty("Household details are required"),
@@ -66,37 +66,14 @@ export const rentalApplicationSchema = z
 
     // Moving & Document Proofs
     reasonForMoving: z.string().nonempty("Reason for moving is required"),
-    proofOfAddress: z
-      .custom<File>()
-      .refine(
-        (file) => file.name != "placeholder",
-        "Proof of Address is required"
-      )
-      .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
-    bankStatement: z
-      .custom<File>()
-      .refine(
-        (file) => file.name != "placeholder",
-        "Bank Statements is required"
-      )
-      .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
-    id: z
-      .custom<File>()
-      .refine((file) => file.name != "placeholder", "ID is required")
-      .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
+    proofOfAddress: z.string().nonempty("Proof of address is required"), //file keys.
+    bankStatement: z.string().nonempty("Bank statement is required"), //file keys.
+    id: z.string().nonempty("ID is required"), //file keys.
 
     // Employment Details
-    employmentStatus: z.enum(
-      [
-        "fullTime",
-        "partTime",
-        "seekingEmployment",
-        "unemployed",
-        "retired",
-        "selfEmployed",
-      ],
-      { errorMap: () => ({ message: "Select a valid employment status" }) }
-    ),
+    employmentStatus: z.nativeEnum(EmploymentStatus, {
+      errorMap: () => ({ message: "Select a valid employment status" }),
+    }),
     workHours: z.number({
       invalid_type_error: "Work hours must be a number",
     }),
@@ -150,8 +127,6 @@ export const rentalApplicationSchema = z
           phone: z.string().nonempty("Accountant phone is required"),
           email: z.string().email("Invalid accountant email"),
         }),
-        // Although our Prisma model had to mark this as optional due to database constraints,
-        // we enforce that self-employed users supply accountant details in the form.
         businessReference: z.object({
           name: z.string().nonempty("Business reference name is required"),
           address: z
@@ -203,11 +178,7 @@ export const rentalApplicationSchema = z
       tvLicence: z.boolean(),
     }),
 
-    debtsPayment: z
-      .number({
-        invalid_type_error: "Debt payment must be a number",
-      })
-      .optional(),
+    debtsPayment: z.number().optional(),
 
     // Next of Kin Details
     nextOfKin: z.object({
@@ -229,7 +200,10 @@ export const rentalApplicationSchema = z
   .refine(
     (data) => {
       // If the living situation is "rented", landlordDetails must be provided.
-      if (data.currentSituation === "rented" && !data.landlordDetails) {
+      if (
+        data.currentSituation === CurrentSituation.rented &&
+        !data.landlordDetails
+      ) {
         return false;
       }
       return true;
@@ -253,7 +227,7 @@ export const defaultValues: RentalApplicationForm = {
   fullName: "",
   currentAddress: "",
   postCode: "",
-  timeAtAddress: 0,
+  timeAtAddress: "",
   telephoneNumber: "",
   emailAddress: "",
   dateOfBirth: "",
@@ -262,11 +236,11 @@ export const defaultValues: RentalApplicationForm = {
   previousAddresses: [],
 
   // Living Situation
-  currentSituation: "homeowner",
+  currentSituation: CurrentSituation.homeowner,
   landlordDetails: undefined,
 
   // Household Information
-  maritalStatus: "single",
+  maritalStatus: MaritalStatus.single,
   householdDetails: "",
 
   // Pets & Smoking
@@ -276,12 +250,12 @@ export const defaultValues: RentalApplicationForm = {
 
   // Moving & Document Proofs
   reasonForMoving: "",
-  proofOfAddress: dummyFile,
-  bankStatement: dummyFile,
-  id: dummyFile,
+  proofOfAddress: "",
+  bankStatement: "",
+  id: "",
 
   // Employment Details
-  employmentStatus: "fullTime",
+  employmentStatus: EmploymentStatus.fullTime,
   workHours: 0,
 
   // Employed Section
@@ -353,9 +327,7 @@ export const personalDetailsSchema = z.object({
   fullName: z.string().nonempty("Full name is required"),
   currentAddress: z.string().nonempty("Current address is required"),
   postCode: z.string().nonempty("Postcode is required"),
-  timeAtAddress: z.number({
-    invalid_type_error: "Time at address must be a number",
-  }),
+  timeAtAddress: z.string().nonempty("Time at address is required"),
   telephoneNumber: z.string().nonempty("Telephone number is required"),
   emailAddress: z.string().email("Invalid email address"),
   dateOfBirth: z.string().nonempty("Date of birth is required"),
@@ -374,12 +346,9 @@ export const previousAddressesSchema = z.object({
 });
 
 export const livingSituationSchema = z.object({
-  currentSituation: z.enum(
-    ["homeowner", "rented", "livingAtHomeOrWithFriends"],
-    {
-      errorMap: () => ({ message: "Select a valid living situation" }),
-    }
-  ),
+  currentSituation: z.nativeEnum(CurrentSituation, {
+    errorMap: () => ({ message: "Select a valid living situation" }),
+  }),
   landlordDetails: z
     .object({
       name: z.string().nonempty("Landlord name is required"),
@@ -390,7 +359,7 @@ export const livingSituationSchema = z.object({
 });
 
 export const householdInformationSchema = z.object({
-  maritalStatus: z.enum(["single", "marriedOrPartner"], {
+  maritalStatus: z.nativeEnum(MaritalStatus, {
     errorMap: () => ({ message: "Select a valid marital status" }),
   }),
   householdDetails: z.string().nonempty("Household details are required"),
@@ -406,35 +375,15 @@ export const petsSmokingSchema = z.object({
 
 export const movingAndProofsSchema = z.object({
   reasonForMoving: z.string().nonempty("Reason for moving is required"),
-  proofOfAddress: z
-    .custom<File>()
-    .refine(
-      (file) => file.name != "placeholder",
-      "Proof of Address is required"
-    )
-    .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
-  bankStatement: z
-    .custom<File>()
-    .refine((file) => file.name != "placeholder", "Bank Statements is required")
-    .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
-  id: z
-    .custom<File>()
-    .refine((file) => file.name != "placeholder", "ID is required")
-    .refine((file) => file?.size <= 5_000_000, "Max file size is 5MB"),
+  proofOfAddress: z.string().nonempty("Proof of address is required"),
+  bankStatement: z.string().nonempty("Bank statement is required"),
+  id: z.string().nonempty("ID is required"),
 });
 
 export const employmentDetailsSchema = z.object({
-  employmentStatus: z.enum(
-    [
-      "fullTime",
-      "partTime",
-      "seekingEmployment",
-      "unemployed",
-      "retired",
-      "selfEmployed",
-    ],
-    { errorMap: () => ({ message: "Select a valid employment status" }) }
-  ),
+  employmentStatus: z.nativeEnum(EmploymentStatus, {
+    errorMap: () => ({ message: "Select a valid employment status" }),
+  }),
   workHours: z.number({
     invalid_type_error: "Work hours must be a number",
   }),

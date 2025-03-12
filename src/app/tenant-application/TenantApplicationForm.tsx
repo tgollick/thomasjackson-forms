@@ -243,7 +243,7 @@ export default function TenantApplicationForm() {
       if (section == 1) {
         const yearsAA = form.getValues("timeAtAddress");
 
-        if (yearsAA > 2) {
+        if (Number(yearsAA) > 2) {
           setSection(3);
           return;
         }
@@ -278,7 +278,7 @@ export default function TenantApplicationForm() {
     if (section == 3) {
       const yearsAA = form.getValues("timeAtAddress");
 
-      if (yearsAA > 2) {
+      if (Number(yearsAA) > 2) {
         setSection(1);
         return;
       }
@@ -318,60 +318,39 @@ export default function TenantApplicationForm() {
     const bankStatement = form.getValues("bankStatement");
 
     if (
-      id.name != "placeholder" &&
-      proofOfAddress.name != "placeholder" &&
-      bankStatement.name != "placeholder"
+      id &&
+      id !== "" &&
+      proofOfAddress &&
+      proofOfAddress !== "" &&
+      bankStatement &&
+      bankStatement !== ""
     ) {
       setIsLoading(true);
 
       try {
         const idResponse = await uploadMutation.mutateAsync({
-          fileName: id.name!,
-        });
-
-        await fetch(idResponse.uploadUrl, {
-          method: "PUT",
-          headers: {
-            "Content-Type": id.type,
-          },
-          body: id,
+          fileName: id,
         });
 
         const poaResponse = await uploadMutation.mutateAsync({
-          fileName: proofOfAddress?.name!,
-        });
-
-        await fetch(poaResponse.uploadUrl, {
-          method: "PUT",
-          headers: {
-            "Content-Type": proofOfAddress.type,
-          },
-          body: proofOfAddress,
+          fileName: proofOfAddress,
         });
 
         const bankStatementResponse = await uploadMutation.mutateAsync({
-          fileName: bankStatement?.name!,
+          fileName: bankStatement,
         });
 
-        await fetch(bankStatementResponse.uploadUrl, {
-          method: "PUT",
-          headers: {
-            "Content-Type": bankStatement.type,
-          },
-          body: bankStatement,
-        });
-
-        toast.success("Files uploaded successfully");
+        toast.success("File upload URLs generated successfully");
         setIsLoading(false);
         // In handleFileUpload function
         return {
           success: true,
-          idFileKey: idResponse.key, // Changed from idKey
-          bankStatementsFileKey: bankStatementResponse.key, // Changed from bankStatementKey
-          proofOfAddressFileKey: poaResponse.key, // Changed from proofOfAddressKey
+          idFileKey: idResponse.key,
+          bankStatementsFileKey: bankStatementResponse.key,
+          proofOfAddressFileKey: poaResponse.key,
         };
       } catch (err) {
-        toast.error("There was an error uploading your files");
+        toast.error("There was an error generating upload URLs");
         setIsLoading(false);
         return false;
       }
@@ -396,55 +375,14 @@ export default function TenantApplicationForm() {
         return;
       }
 
-      // const payload = {
-      //   ...cleanedValues,
-      //   idFileKey: uploadSuccess.idFileKey,
-      //   proofOfAddressFileKey: uploadSuccess.proofOfAddressFileKey,
-      //   bankStatementsFileKey: uploadSuccess.bankStatementsFileKey,
-      // };
-
-      const minimalTestData = {
-        propertyAddress: "Test Address",
-        rentalAmount: 1000,
-        moveInDate: new Date().toISOString(),
-        fullName: "Test Name",
-        currentAddress: "Test Current Address",
-        postCode: "Test Postcode",
-        timeAtAddress: "1 year", // Corrected to be a string
-        telephoneNumber: "123-456-7890",
-        emailAddress: "test@example.com",
-        dateOfBirth: new Date(1990, 0, 1).toISOString(),
-        currentSituation: CurrentSituation.rented,
-        maritalStatus: MaritalStatus.single,
-        householdDetails: "Test Household Details",
-        smoker: false,
-        allowInspection: true,
-        reasonForMoving: "Test Reason",
-        idFileKey: "test-id-file-key",
-        proofOfAddressFileKey: "test-proof-of-address-file-key",
-        bankStatementsFileKey: "test-bank-statements-file-key",
-        employmentStatus: EmploymentStatus.fullTime,
-        workHours: 40,
-        countyCourtJudgements: false,
-        bankruptOrInsolvent: false,
-        evicted: false,
-        lateRentalPayments: false,
-        nextOfKin: {
-          name: "Test Kin Name",
-          address: "Test Kin Address",
-          contactDetails: "Test Kin Contact",
-          relationship: "Test Kin Relationship",
-        },
-        declaration: {
-          printedName: "Test Printed Name",
-          signature: "Test Signature",
-          date: new Date().toISOString(),
-        },
+      const payload = {
+        ...cleanedValues,
+        idFileKey: uploadSuccess.idFileKey,
+        proofOfAddressFileKey: uploadSuccess.proofOfAddressFileKey,
+        bankStatementsFileKey: uploadSuccess.bankStatementsFileKey,
       };
 
-      const response = await tenancyApplicationMutation.mutateAsync(
-        minimalTestData
-      );
+      const response = await tenancyApplicationMutation.mutateAsync(payload);
 
       if (response.success) {
         toast.success(String(response.message));
@@ -514,7 +452,7 @@ export default function TenantApplicationForm() {
             // Determine if this section should be considered completed even if skipped
             const isSkippedSection =
               // Previous addresses skipped when time at address > 2
-              (idx === 2 && form.getValues("timeAtAddress") > 2) ||
+              (idx === 2 && Number(form.getValues("timeAtAddress")) > 2) ||
               // Previous employer skipped for non-employed
               (idx === 9 &&
                 !["fullTime", "partTime"].includes(
