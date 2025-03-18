@@ -42,7 +42,7 @@ const GuarantorInformation = () => {
                         timeAtAddress: "",
                         newAddressDetails: undefined,
                         signature: "",
-                        date: ""
+                        date: "",
                       });
                     }
                   }}
@@ -80,7 +80,11 @@ const GuarantorInformation = () => {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input {...field} type="email" placeholder="john@example.com" />
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="john@example.com"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -147,10 +151,11 @@ const GuarantorInformation = () => {
             />
 
             {/* Previous Address Section */}
-            {(parseInt(timeAtAddress) < 3 || timeAtAddress?.includes("less than 3")) && (
+            {(parseInt(timeAtAddress) < 3 ||
+              timeAtAddress?.includes("less than 3")) && (
               <div className="border p-4 rounded-lg space-y-4">
                 <h3 className="font-medium">Previous Address Details</h3>
-                
+
                 <FormField
                   control={control}
                   name="guarantor.newAddressDetails.address"
@@ -202,7 +207,11 @@ const GuarantorInformation = () => {
                     <FormItem>
                       <FormLabel>Previous Email</FormLabel>
                       <FormControl>
-                        <Input {...field} type="email" placeholder="previous@example.com" />
+                        <Input
+                          {...field}
+                          type="email"
+                          placeholder="previous@example.com"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -221,7 +230,10 @@ const GuarantorInformation = () => {
                     <FormItem>
                       <FormLabel>Guarantor Signature</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Full name as signature" />
+                        <Input
+                          {...field}
+                          placeholder="Full name as signature"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

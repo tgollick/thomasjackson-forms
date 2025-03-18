@@ -31,9 +31,7 @@ const PersonalDetails = () => {
               </FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Input 
-                    {...field} 
-                    placeholder="John Smith"                   />
+                  <Input {...field} placeholder="John Smith" />
                 </div>
               </FormControl>
               <FormMessage />
@@ -52,11 +50,7 @@ const PersonalDetails = () => {
               </FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Input 
-                    {...field}
-                    type="date"
-                    placeholder="DD/MM/YYYY"
-                  />
+                  <Input {...field} type="date" placeholder="DD/MM/YYYY" />
                 </div>
               </FormControl>
               <FormMessage />
@@ -80,10 +74,7 @@ const PersonalDetails = () => {
                   Street Address
                 </FormLabel>
                 <FormControl>
-                  <Input 
-                    {...field} 
-                    placeholder="123 Wilson Lane"
-                  />
+                  <Input {...field} placeholder="123 Wilson Lane" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -98,10 +89,7 @@ const PersonalDetails = () => {
                 <FormItem>
                   <FormLabel>Postcode</FormLabel>
                   <FormControl>
-                    <Input 
-                      {...field} 
-                      placeholder="CT4 2QN"
-                    />
+                    <Input {...field} placeholder="CT4 2QN" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -115,14 +103,7 @@ const PersonalDetails = () => {
                 <FormItem>
                   <FormLabel>Time at Address (Years)</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      placeholder="1.5"
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
+                    <Input {...field} />
                   </FormControl>
                   <FormDescription className="text-xs text-gray-500">
                     E.g. one and a half years would be 1.5
@@ -146,10 +127,7 @@ const PersonalDetails = () => {
                 Telephone Number
               </FormLabel>
               <FormControl>
-                <Input 
-                  {...field} 
-                  placeholder="07818302999"
-                />
+                <Input {...field} placeholder="07818302999" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -166,8 +144,8 @@ const PersonalDetails = () => {
                 Email Address
               </FormLabel>
               <FormControl>
-                <Input 
-                  {...field} 
+                <Input
+                  {...field}
                   type="email"
                   placeholder="john.smith@example.com"
                 />

@@ -16,16 +16,70 @@ export const rentalApplicationSchema = z
     rentalAmount: z.number({
       invalid_type_error: "Rental amount must be a number",
     }),
-    moveInDate: z.string().nonempty("Move-in date is required"),
+    moveInDate: z
+      .string()
+      .nonempty("Move-in date is required")
+      .refine(
+        (dateString) => {
+          // First validate proper date format
+          const date = new Date(dateString);
+          if (isNaN(date.getTime())) return false; // Invalid date format
+
+          // Compare dates at midnight UTC to avoid timezone issues
+          const today = new Date();
+          today.setUTCHours(0, 0, 0, 0); // Normalize to start of day
+
+          // Create move-in date at midnight UTC for accurate comparison
+          const moveInDate = new Date(dateString);
+          moveInDate.setUTCHours(0, 0, 0, 0);
+
+          return moveInDate > today;
+        },
+        {
+          message:
+            "Move-in date must be after today's date (YYYY-MM-DD format required)",
+        }
+      ),
 
     // Personal Details
     fullName: z.string().nonempty("Full name is required"),
     currentAddress: z.string().nonempty("Current address is required"),
     postCode: z.string().nonempty("Postcode is required"),
     timeAtAddress: z.string().nonempty("Time at address is required"), // Changed to String
-    telephoneNumber: z.string().nonempty("Telephone number is required"),
+    telephoneNumber: z
+      .string()
+      .nonempty("Telephone number is required")
+      .refine((value) => {
+        const phoneNumberRegex = /^\d{11}$/; // 11 digits
+        return phoneNumberRegex.test(value);
+      }, "Invalid phone number format (11 digits required)"),
     emailAddress: z.string().email("Invalid email address"),
-    dateOfBirth: z.string().nonempty("Date of birth is required"),
+    dateOfBirth: z
+      .string()
+      .nonempty("Date of birth is required")
+      .refine((dateString) => {
+        const birthDate = new Date(dateString);
+        if (isNaN(birthDate.getTime())) return false; // Invalid date format
+
+        // Calculate 18 years ago from today (UTC time)
+        const today = new Date();
+        const minDate = new Date(
+          Date.UTC(
+            today.getUTCFullYear() - 18,
+            today.getUTCMonth(),
+            today.getUTCDate()
+          )
+        );
+
+        // Compare dates at midnight UTC
+        const birthUTC = Date.UTC(
+          birthDate.getUTCFullYear(),
+          birthDate.getUTCMonth(),
+          birthDate.getUTCDate()
+        );
+
+        return birthUTC <= minDate.getTime();
+      }, "You must be at least 18 years old"),
 
     // Previous Addresses (optional array)
     previousAddresses: z
@@ -66,9 +120,21 @@ export const rentalApplicationSchema = z
 
     // Moving & Document Proofs
     reasonForMoving: z.string().nonempty("Reason for moving is required"),
-    proofOfAddress: z.string().nonempty("Proof of address is required"), //file keys.
-    bankStatement: z.string().nonempty("Bank statement is required"), //file keys.
-    id: z.string().nonempty("ID is required"), //file keys.
+    proofOfAddress: z
+      .instanceof(File, { message: "Proof of address is required" })
+      .refine((file) => file.name !== "placeholder", {
+        message: "Please upload a valid proof of address file",
+      }),
+    bankStatement: z
+      .instanceof(File, { message: "Bank statement is required" })
+      .refine((file) => file.name !== "placeholder", {
+        message: "Please upload a valid bank statement file",
+      }),
+    id: z
+      .instanceof(File, { message: "ID is required" })
+      .refine((file) => file.name !== "placeholder", {
+        message: "Please upload a valid ID file",
+      }),
 
     // Employment Details
     employmentStatus: z.nativeEnum(EmploymentStatus, {
@@ -250,26 +316,16 @@ export const defaultValues: RentalApplicationForm = {
 
   // Moving & Document Proofs
   reasonForMoving: "",
-  proofOfAddress: "",
-  bankStatement: "",
-  id: "",
+  proofOfAddress: dummyFile,
+  bankStatement: dummyFile,
+  id: dummyFile,
 
   // Employment Details
   employmentStatus: EmploymentStatus.fullTime,
   workHours: 0,
 
   // Employed Section
-  employedDetails: {
-    jobTitle: "",
-    companyName: "",
-    employerAddress: "",
-    employerPostCode: "",
-    employerTelephone: "",
-    employerEmail: "",
-    timeEmployed: "",
-    currentSalary: 0,
-    nationalInsuranceNumber: "",
-  },
+  employedDetails: undefined,
 
   // Previous Employer Details
   previousEmployer: undefined,
@@ -375,9 +431,21 @@ export const petsSmokingSchema = z.object({
 
 export const movingAndProofsSchema = z.object({
   reasonForMoving: z.string().nonempty("Reason for moving is required"),
-  proofOfAddress: z.string().nonempty("Proof of address is required"),
-  bankStatement: z.string().nonempty("Bank statement is required"),
-  id: z.string().nonempty("ID is required"),
+  proofOfAddress: z
+    .instanceof(File, { message: "Proof of address is required" })
+    .refine((file) => file.name !== "placeholder", {
+      message: "Please upload a valid proof of address file",
+    }),
+  bankStatement: z
+    .instanceof(File, { message: "Bank statement is required" })
+    .refine((file) => file.name !== "placeholder", {
+      message: "Please upload a valid bank statement file",
+    }),
+  id: z
+    .instanceof(File, { message: "ID is required" })
+    .refine((file) => file.name !== "placeholder", {
+      message: "Please upload a valid ID file",
+    }),
 });
 
 export const employmentDetailsSchema = z.object({

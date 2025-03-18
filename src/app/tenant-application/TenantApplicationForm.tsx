@@ -25,7 +25,7 @@ import {
   propertyRentalDetailsSchema,
 } from "./tenantApplicationSchema";
 import { useState, useEffect } from "react";
-import { z } from "zod";
+import { date, z } from "zod";
 import PropertyDetails from "./formSections/PropertyDetails";
 import PersonalDetails from "./formSections/PersonalDetails";
 import PreviousAddresses from "./formSections/PreviousAddresses";
@@ -243,7 +243,11 @@ export default function TenantApplicationForm() {
       if (section == 1) {
         const yearsAA = form.getValues("timeAtAddress");
 
-        if (Number(yearsAA) > 2) {
+        // Parse the years from a string like "4 Years and 3 Months"
+        const yearsMatch = yearsAA.match(/(\d+)\s*Years?/i);
+        const years = yearsMatch ? parseInt(yearsMatch[1]) : 0;
+
+        if (years > 2) {
           setSection(3);
           return;
         }
@@ -278,7 +282,11 @@ export default function TenantApplicationForm() {
     if (section == 3) {
       const yearsAA = form.getValues("timeAtAddress");
 
-      if (Number(yearsAA) > 2) {
+      // Parse the years from a string like "4 Years and 3 Months"
+      const yearsMatch = yearsAA.match(/(\d+)\s*Years?/i);
+      const years = yearsMatch ? parseInt(yearsMatch[1]) : 0;
+
+      if (years > 2) {
         setSection(1);
         return;
       }
@@ -319,30 +327,30 @@ export default function TenantApplicationForm() {
 
     if (
       id &&
-      id !== "" &&
+      id.name !== "" &&
       proofOfAddress &&
-      proofOfAddress !== "" &&
+      proofOfAddress.name !== "" &&
       bankStatement &&
-      bankStatement !== ""
+      bankStatement.name !== ""
     ) {
       setIsLoading(true);
 
       try {
         const idResponse = await uploadMutation.mutateAsync({
-          fileName: id,
+          fileName: id.name,
         });
 
         const poaResponse = await uploadMutation.mutateAsync({
-          fileName: proofOfAddress,
+          fileName: proofOfAddress.name,
         });
 
         const bankStatementResponse = await uploadMutation.mutateAsync({
-          fileName: bankStatement,
+          fileName: bankStatement.name,
         });
 
         toast.success("File upload URLs generated successfully");
         setIsLoading(false);
-        // In handleFileUpload function
+
         return {
           success: true,
           idFileKey: idResponse.key,
@@ -369,14 +377,38 @@ export default function TenantApplicationForm() {
 
       const uploadSuccess = await handleFileUpload();
 
-      // Only proceed if file upload was successful
       if (!uploadSuccess) {
         setIsLoading(false);
         return;
       }
 
-      const payload = {
+      const formatDateField = (dateString: string): string => {
+        return new Date(dateString).toISOString();
+      };
+
+      const formattedValues = {
         ...cleanedValues,
+        moveInDate: formatDateField(cleanedValues.moveInDate!), // Add ! to assert non-null
+        dateOfBirth: formatDateField(cleanedValues.dateOfBirth!),
+        bankruptcyDate: cleanedValues.bankruptcyDate
+          ? formatDateField(cleanedValues.bankruptcyDate)
+          : undefined,
+      };
+
+      if (formattedValues.guarantor?.date) {
+        formattedValues.guarantor.date = formatDateField(
+          formattedValues.guarantor.date
+        );
+      }
+
+      if (formattedValues.declaration?.date) {
+        formattedValues.declaration.date = formatDateField(
+          formattedValues.declaration.date
+        );
+      }
+
+      const payload = {
+        ...formattedValues,
         idFileKey: uploadSuccess.idFileKey,
         proofOfAddressFileKey: uploadSuccess.proofOfAddressFileKey,
         bankStatementsFileKey: uploadSuccess.bankStatementsFileKey,
