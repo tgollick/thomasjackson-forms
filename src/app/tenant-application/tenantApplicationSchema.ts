@@ -13,9 +13,11 @@ export const rentalApplicationSchema = z
   .object({
     // Property & Rental Details
     propertyAddress: z.string().nonempty("Property address is required"),
-    rentalAmount: z.number({
-      invalid_type_error: "Rental amount must be a number",
-    }),
+    rentalAmount: z
+      .number({
+        invalid_type_error: "Rental amount must be a number",
+      })
+      .refine((number) => number > 0, "Rental amount must be greater than 0"),
     moveInDate: z
       .string()
       .nonempty("Move-in date is required")

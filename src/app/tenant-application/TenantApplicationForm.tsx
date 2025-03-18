@@ -348,7 +348,32 @@ export default function TenantApplicationForm() {
           fileName: bankStatement.name,
         });
 
-        toast.success("File upload URLs generated successfully");
+        await fetch(idResponse.uploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": id.type,
+          },
+          body: id,
+        });
+
+        await fetch(poaResponse.uploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": proofOfAddress.type,
+          },
+          body: proofOfAddress,
+        });
+
+        await fetch(bankStatementResponse.uploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": bankStatement.type,
+          },
+          body: bankStatement,
+        });
+
+        toast.success("Files uploaded successfully");
+
         setIsLoading(false);
 
         return {
@@ -358,7 +383,7 @@ export default function TenantApplicationForm() {
           proofOfAddressFileKey: poaResponse.key,
         };
       } catch (err) {
-        toast.error("There was an error generating upload URLs");
+        toast.error("Failed to upload files");
         setIsLoading(false);
         return false;
       }
