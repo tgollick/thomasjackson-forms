@@ -256,3 +256,47 @@ model Declaration {
   rentalApplicationId String             @unique
   rentalApplication   RentalApplication  @relation(fields: [rentalApplicationId], references: [id], onDelete: Cascade)
 }
+
+model BuyerOffer {
+  id String @id @default(uuid())
+  propertyAddress String
+  buyerNames String[]
+  currentAddress String
+  identificationUploadKeys String[]
+  fundPurchase String
+  fundProof String
+  fundProofKey String
+  depositAmount Float
+  depositDetails String
+  requireMortgage Boolean
+  brokerContact Boolean
+  mortgageBroker MortgageBroker?
+  solicitor Solicitor?
+  politicallyExposed Boolean
+  politicallyExposedDetails String?
+  declarationNames String[]
+  declarationSignature String[]
+  declarationDate DateTime
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+}
+
+model MortgageBroker {
+  id String @id @default(uuid())
+  name String
+  address String
+  phone String
+  email String
+  buyerOfferId String @unique
+  buyerOffer BuyerOffer @relation(fields: [buyerOfferId], references: [id], onDelete: Cascade)
+}
+
+model Solicitor {
+  id String @id @default(uuid())
+  name String
+  address String
+  phone String
+  email String
+  buyerOfferId String @unique
+  buyerOffer BuyerOffer @relation(fields: [buyerOfferId], references: [id], onDelete: Cascade)
+}
