@@ -90,10 +90,18 @@ const page = (props: Props) => {
     setFormProgress(Math.round((section / (formSections.length - 1)) * 100));
   }, [section]);
 
-  const handleNextSection = async (sectionSchema: z.ZodObject<any>) => {
-    const sectionKeys = Object.keys(
-      sectionSchema.shape
-    ) as (keyof BuyerOfferFormValues)[];
+  const handleNextSection = async (sectionSchema: z.ZodType) => {
+    // Extract the underlying object schema if it's a ZodEffects or other wrapper
+    const effectiveSchema =
+      sectionSchema instanceof z.ZodEffects
+        ? sectionSchema.innerType()
+        : sectionSchema;
+
+    // Safely get keys, handling different schema types
+    const sectionKeys =
+      effectiveSchema instanceof z.ZodObject
+        ? (Object.keys(effectiveSchema.shape) as (keyof BuyerOfferFormValues)[])
+        : [];
 
     const isValid = await form.trigger(sectionKeys);
 
@@ -104,6 +112,21 @@ const page = (props: Props) => {
 
   const handlePreviousSection = () => {
     setSection((prev) => prev - 1);
+  };
+
+  const getSchemaKeys = (schema: z.ZodType): (keyof BuyerOfferFormValues)[] => {
+    if (schema instanceof z.ZodObject) {
+      return Object.keys(schema.shape) as (keyof BuyerOfferFormValues)[];
+    }
+
+    if (schema instanceof z.ZodEffects) {
+      const innerSchema = schema.innerType();
+      if (innerSchema instanceof z.ZodObject) {
+        return Object.keys(innerSchema.shape) as (keyof BuyerOfferFormValues)[];
+      }
+    }
+
+    return [];
   };
 
   const onSubmit = (values: BuyerOfferFormValues) => {};
@@ -236,11 +259,10 @@ const page = (props: Props) => {
                     type="button"
                     onClick={async () => {
                       // Validate the last section before submitting
-                      const isValid = await form.trigger(
-                        Object.keys(
-                          formSections[section].schema.shape
-                        ) as (keyof BuyerOfferFormValues)[]
-                      );
+                      const sectionSchema = formSections[section].schema;
+                      const sectionKeys = getSchemaKeys(sectionSchema);
+
+                      const isValid = await form.trigger(sectionKeys);
                       if (isValid) {
                         form.handleSubmit(onSubmit)();
                       }

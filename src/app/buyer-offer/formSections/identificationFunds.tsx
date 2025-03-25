@@ -10,12 +10,113 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
+import { FileIcon, Upload, UploadIcon, XIcon } from "lucide-react";
 import type { BuyerOfferFormValues } from "../buyerOfferSchema";
 
 // Will contain:
 // - Identification Uploads
 // - Proof of Funds
+
+const FileUpload = ({
+  field,
+  fieldName,
+  accept = ".pdf,.jpg,.jpeg,.png",
+}: {
+  field: any;
+  fieldName: string;
+  accept?: string;
+}) => {
+  const { getValues } = useFormContext();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const getFile = () => {
+    const file = getValues(fieldName) as File;
+    return file && file.name !== "placeholder" ? file : null;
+  };
+
+  const file = getFile();
+  const isImage = file && file.type.startsWith("image/");
+
+  const handleDelete = () => {
+    // Create a new dummy file with name "placeholder"
+    const dummyFile = new File([], "placeholder", {
+      type: "application/octet-stream",
+    });
+    field.onChange(dummyFile);
+  };
+
+  return (
+    <div className="w-full">
+      {!file ? (
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          className="border-2 border-dashed border-s-muted rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-muted transition-colors"
+        >
+          <UploadIcon className="h-8 w-8 text-gray-400 mb-2" />
+          <p className="text-sm text-gray-500 mb-1">
+            Click to upload or drag and drop
+          </p>
+          <p className="text-xs text-gray-400">PDF, JPG, JPEG, PNG</p>
+          <Input
+            ref={fileInputRef}
+            type="file"
+            accept={accept}
+            onChange={(e) => field.onChange(e.target.files?.[0])}
+            className="hidden"
+          />
+        </div>
+      ) : (
+        <div className="border rounded-lg p-4 bg-muted">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center">
+              <FileIcon className="h-5 w-5 text-blue-500 mr-2" />
+              <span className="text-sm font-medium truncate max-w-[200px]">
+                {file.name}
+              </span>
+            </div>
+            <div className="flex space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Change
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleDelete}
+                className="text-red-500 hover:text-red-700"
+              >
+                <XIcon className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {isImage && (
+            <div className="mt-2 relative w-full h-32 bg-muted rounded overflow-hidden">
+              <img
+                src={URL.createObjectURL(file)}
+                alt="Preview"
+                className="w-full h-full object-contain"
+              />
+            </div>
+          )}
+
+          <Input
+            ref={fileInputRef}
+            type="file"
+            accept={accept}
+            onChange={(e) => field.onChange(e.target.files?.[0])}
+            className="hidden"
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
 type Props = {};
 
@@ -40,33 +141,7 @@ const IdentificationFunds = (props: Props) => {
             name="identificationUploads"
             render={({ field: { value, ...field } }) => (
               <div className="flex-1">
-                <Input
-                  type="file"
-                  multiple
-                  accept="image/*,.pdf"
-                  className="hidden"
-                  id="idUploads"
-                  {...field}
-                  onChange={(e) => handleFileChange(e, "identificationUploads")}
-                />
-                <label htmlFor="idUploads">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    asChild
-                  >
-                    <div>
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload ID Documents
-                    </div>
-                  </Button>
-                </label>
-                {value?.length > 0 && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {value.length} file(s) selected
-                  </p>
-                )}
+                <FileUpload field={field} fieldName="identificationUploads" />
               </div>
             )}
           />
@@ -128,33 +203,7 @@ const IdentificationFunds = (props: Props) => {
           name="fundProofUpload"
           render={({ field: { value, ...field } }) => (
             <div className="flex-1">
-              <Input
-                type="file"
-                multiple
-                accept="image/*,.pdf"
-                className="hidden"
-                id="fundProof"
-                {...field}
-                onChange={(e) => handleFileChange(e, "fundProofUpload")}
-              />
-              <label htmlFor="fundProof">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  asChild
-                >
-                  <div>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Proof of Funds
-                  </div>
-                </Button>
-              </label>
-              {value?.length > 0 && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  {value.length} file(s) selected
-                </p>
-              )}
+              <FileUpload field={field} fieldName="fundProofUpload" />
             </div>
           )}
         />
