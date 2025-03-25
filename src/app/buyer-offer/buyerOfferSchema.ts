@@ -39,6 +39,58 @@ const fileSchema = z.instanceof(File, {
   message: "Please upload a valid file",
 });
 
+export const personalInfoSchema = z.object({
+  propertyAddress: z.string().min(1, "Property address is required"),
+
+  buyerNames: z
+    .array(z.string().min(1, "Buyer name is required"))
+    .min(1, "At least one buyer name is required"),
+
+  currentAddress: z.string().min(1, "Current address is required"),
+});
+
+export const identificationFundsSchema = z.object({
+  identificationUploads: z
+    .array(fileSchema)
+    .min(2, "Please upload at least two forms of identification"),
+
+  fundPurchase: FundingMethod,
+  fundProof: ProofType,
+  fundProofUpload: z.array(fileSchema).min(1, "Please upload proof of funds"),
+});
+
+export const depositMortgageSchema = z.object({
+  depositAmount: z.number().positive("Deposit amount must be greater than 0"),
+  depositDetails: z
+    .string()
+    .min(1, "Please explain how you received this money"),
+
+  requireMortgage: z.boolean(),
+  brokerContact: z.boolean(),
+
+  mortgageBroker: z.union([z.undefined(), mortgageBrokerSchema]).optional(),
+
+  solicitor: solicitorSchema,
+});
+
+export const politicalDeclarationSchema = z.object({
+  politicallyExposed: z.boolean(),
+  politicallyExposedDetails: z.string().optional(),
+
+  declarationNames: z
+    .array(z.string().min(1, "Declaration name is required"))
+    .min(1, "At least one declaration name is required"),
+
+  declarationSignature: z
+    .array(z.string().min(1, "Signature is required"))
+    .min(1, "At least one signature is required"),
+
+  declarationDate: z.date({
+    required_error: "Declaration date is required",
+    invalid_type_error: "Declaration date must be a valid date",
+  }),
+});
+
 // Main BuyerOffer schema
 export const buyerOfferSchema = z
   .object({
@@ -127,18 +179,24 @@ export const buyerOfferSchema = z
 // Types derived from the schema
 export type BuyerOfferFormValues = z.infer<typeof buyerOfferSchema>;
 
-// Default values for the form
-export const defaultBuyerOfferValues: Partial<BuyerOfferFormValues> = {
+export const defaultValues: BuyerOfferFormValues = {
+  propertyAddress: "",
   buyerNames: [""],
+  currentAddress: "",
   identificationUploads: [], // Empty array for file uploads
-  fundPurchase: "Mortgage" as const,
-  fundProof: "Agreement in principle" as const,
+  fundPurchase: "Mortgage",
+  fundProof: "Agreement in principle",
   fundProofUpload: [],
   depositAmount: 0,
   depositDetails: "",
   requireMortgage: true,
   brokerContact: false,
-  mortgageBroker: undefined, // Start with undefined
+  mortgageBroker: {
+    name: "",
+    address: "",
+    phone: "",
+    email: "",
+  },
   solicitor: {
     name: "",
     address: "",
