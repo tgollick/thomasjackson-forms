@@ -9,7 +9,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import type { BuyerOfferFormValues } from "../buyerOfferSchema";
+import type {
+  BuyerOfferFormValues,
+  mortgageBrokerSchema,
+} from "../buyerOfferSchema";
+import { Button } from "@/components/ui/button";
+import { z } from "zod";
 
 // Will contain:
 // - Deposit Amount
@@ -24,13 +29,15 @@ export default function DepositMortgage(props: Props) {
   const requireMortgage = form.watch("requireMortgage");
 
   const toggleMortgageData = () => {
-    if (!requireMortgage) {
+    const requireMortgage = form.getValues("requireMortgage");
+
+    if (requireMortgage) {
       form.setValue("mortgageBroker", {
         name: "",
         address: "",
         phone: "",
         email: "",
-      });
+      } as z.infer<typeof mortgageBrokerSchema>);
     } else {
       form.setValue("mortgageBroker", undefined);
     }
@@ -84,9 +91,8 @@ export default function DepositMortgage(props: Props) {
               <Switch
                 checked={field.value}
                 onCheckedChange={() => {
-                  toggleMortgageData();
                   field.onChange(!field.value);
-                  console.log(form.watch("mortgageBroker"));
+                  toggleMortgageData();
                 }}
               />
             </FormControl>
@@ -118,6 +124,11 @@ export default function DepositMortgage(props: Props) {
 
           <div className="space-y-4">
             <h3 className="font-medium">Mortgage Broker Details</h3>
+            {form.formState.errors.mortgageBroker && (
+              <p className="text-destructive text-sm">
+                {form.formState.errors.mortgageBroker.message}
+              </p>
+            )}
             <FormField
               control={form.control}
               name="mortgageBroker.name"

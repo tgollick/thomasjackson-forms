@@ -42,8 +42,7 @@ const FileUpload = ({
 
   const file = getFile();
 
-  const isImage =
-    (file != null || file != undefined) && file.type.startsWith("image/");
+  const isImage = file && file.type.startsWith("image/");
 
   const handleDelete = () => {
     field.onChange(null);

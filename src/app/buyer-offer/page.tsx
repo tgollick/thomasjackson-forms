@@ -129,7 +129,9 @@ const page = (props: Props) => {
     return [];
   };
 
-  const onSubmit = (values: BuyerOfferFormValues) => {};
+  const onSubmit = (values: BuyerOfferFormValues) => {
+    console.log(values);
+  };
 
   return (
     <div className="min-h-screen bg-background py-10 px-4 sm:px-6 lg:px-8 w-full">

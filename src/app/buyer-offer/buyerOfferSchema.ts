@@ -23,7 +23,7 @@ const ProofType = z.enum([
 ]);
 
 // Define MortgageBroker schema
-const mortgageBrokerSchema = z.object({
+export const mortgageBrokerSchema = z.object({
   name: z.string().min(1, "Broker name is required"),
   address: z.string().min(1, "Broker address is required"),
   phone: z.string().min(1, "Broker phone is required"),
@@ -90,12 +90,9 @@ export const depositMortgageSchema = z.object({
   depositDetails: z
     .string()
     .min(1, "Please explain how you received this money"),
-
   requireMortgage: z.boolean(),
   brokerContact: z.boolean(),
-
-  mortgageBroker: z.union([z.undefined(), mortgageBrokerSchema]).optional(),
-
+  mortgageBroker: z.union([z.undefined(), mortgageBrokerSchema]),
   solicitor: solicitorSchema,
 });
 
@@ -161,7 +158,7 @@ export const buyerOfferSchema = z
     requireMortgage: z.boolean(),
     brokerContact: z.boolean(),
 
-    mortgageBroker: z.union([z.undefined(), mortgageBrokerSchema]).optional(),
+    mortgageBroker: z.union([z.undefined(), mortgageBrokerSchema]),
 
     solicitor: solicitorSchema,
 
