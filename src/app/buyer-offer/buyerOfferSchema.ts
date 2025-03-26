@@ -85,41 +85,19 @@ export const identificationFundsSchema = z.object({
   fundProofUpload: z.array(fileSchema).min(1, "Please upload proof of funds"),
 });
 
-export const depositMortgageSchema = z
-  .object({
-    depositAmount: z.number().positive("Deposit amount must be greater than 0"),
-    depositDetails: z
-      .string()
-      .min(1, "Please explain how you received this money"),
+export const depositMortgageSchema = z.object({
+  depositAmount: z.number().positive("Deposit amount must be greater than 0"),
+  depositDetails: z
+    .string()
+    .min(1, "Please explain how you received this money"),
 
-    requireMortgage: z.boolean(),
-    brokerContact: z.boolean(),
+  requireMortgage: z.boolean(),
+  brokerContact: z.boolean(),
 
-    mortgageBroker: z.union([z.undefined(), mortgageBrokerSchema]).optional(),
+  mortgageBroker: z.union([z.undefined(), mortgageBrokerSchema]).optional(),
 
-    solicitor: solicitorSchema,
-  })
-  .refine(
-    (data) => {
-      // If mortgage is required, ensure broker details are provided
-      if (data.requireMortgage) {
-        return (
-          !!data.mortgageBroker &&
-          Object.keys(data.mortgageBroker).length > 0 &&
-          !!data.mortgageBroker.name &&
-          !!data.mortgageBroker.address &&
-          !!data.mortgageBroker.phone &&
-          !!data.mortgageBroker.email
-        );
-      }
-      return true;
-    },
-    {
-      message:
-        "Mortgage broker details are required when applying for a mortgage",
-      path: ["mortgageBroker"], // This points the error to the mortgageBroker field
-    }
-  );
+  solicitor: solicitorSchema,
+});
 
 export const politicalDeclarationSchema = z
   .object({
@@ -262,20 +240,15 @@ export const defaultValues: BuyerOfferFormValues = {
   numberOfBuyers: 1,
   buyerNames: [""],
   currentAddress: "",
-  identificationUploads: [dummyFile], // Empty array for file uploads
+  identificationUploads: [], // Empty array for file uploads
   fundPurchase: "Mortgage",
   fundProof: "Agreement in principle",
-  fundProofUpload: [dummyFile],
+  fundProofUpload: [],
   depositAmount: 0,
   depositDetails: "",
-  requireMortgage: true,
+  requireMortgage: false,
   brokerContact: false,
-  mortgageBroker: {
-    name: "",
-    address: "",
-    phone: "",
-    email: "",
-  },
+  mortgageBroker: undefined,
   solicitor: {
     name: "",
     address: "",

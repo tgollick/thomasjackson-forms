@@ -1,5 +1,11 @@
 import { useFormContext } from "react-hook-form";
-import { FormField } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
@@ -17,21 +23,37 @@ export default function DepositMortgage(props: Props) {
   const form = useFormContext<BuyerOfferFormValues>();
   const requireMortgage = form.watch("requireMortgage");
 
+  const toggleMortgageData = () => {
+    if (!requireMortgage) {
+      form.setValue("mortgageBroker", {
+        name: "",
+        address: "",
+        phone: "",
+        email: "",
+      });
+    } else {
+      form.setValue("mortgageBroker", undefined);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <FormField
         control={form.control}
         name="depositAmount"
         render={({ field }) => (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Deposit Amount</label>
-            <Input
-              type="number"
-              {...field}
-              onChange={(e) => field.onChange(Number(e.target.value))}
-              placeholder="Enter deposit amount"
-            />
-          </div>
+          <FormItem>
+            <FormLabel>Deposit Amount</FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                {...field}
+                onChange={(e) => field.onChange(Number(e.target.value))}
+                placeholder="Enter deposit amount"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
         )}
       />
 
@@ -39,13 +61,16 @@ export default function DepositMortgage(props: Props) {
         control={form.control}
         name="depositDetails"
         render={({ field }) => (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Deposit Details</label>
-            <Textarea
-              {...field}
-              placeholder="Please explain how you received this money"
-            />
-          </div>
+          <FormItem>
+            <FormLabel>Deposit Details</FormLabel>
+            <FormControl>
+              <Textarea
+                {...field}
+                placeholder="Please explain how you received this money"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
         )}
       />
 
@@ -53,10 +78,20 @@ export default function DepositMortgage(props: Props) {
         control={form.control}
         name="requireMortgage"
         render={({ field }) => (
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-medium">Require Mortgage</label>
-            <Switch checked={field.value} onCheckedChange={field.onChange} />
-          </div>
+          <FormItem>
+            <FormLabel>Require Mortgage</FormLabel>
+            <FormControl>
+              <Switch
+                checked={field.value}
+                onCheckedChange={() => {
+                  toggleMortgageData();
+                  field.onChange(!field.value);
+                  console.log(form.watch("mortgageBroker"));
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
         )}
       />
 
@@ -66,15 +101,18 @@ export default function DepositMortgage(props: Props) {
             control={form.control}
             name="brokerContact"
             render={({ field }) => (
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">
+              <FormItem>
+                <FormLabel>
                   Are you happy to be contacted by our in house mortgage broker?
-                </label>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </div>
+                </FormLabel>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
 
@@ -84,44 +122,56 @@ export default function DepositMortgage(props: Props) {
               control={form.control}
               name="mortgageBroker.name"
               render={({ field }) => (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Broker Name</label>
-                  <Input {...field} placeholder="Enter broker name" />
-                </div>
+                <FormItem>
+                  <FormLabel>Broker Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter broker name" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
             />
             <FormField
               control={form.control}
               name="mortgageBroker.address"
               render={({ field }) => (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Broker Address</label>
-                  <Input {...field} placeholder="Enter broker address" />
-                </div>
+                <FormItem>
+                  <FormLabel>Broker Address</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter broker address" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
             />
             <FormField
               control={form.control}
               name="mortgageBroker.phone"
               render={({ field }) => (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Broker Phone</label>
-                  <Input {...field} placeholder="Enter broker phone" />
-                </div>
+                <FormItem>
+                  <FormLabel>Broker Phone</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter broker phone" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
             />
             <FormField
               control={form.control}
               name="mortgageBroker.email"
               render={({ field }) => (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Broker Email</label>
-                  <Input
-                    {...field}
-                    type="email"
-                    placeholder="Enter broker email"
-                  />
-                </div>
+                <FormItem>
+                  <FormLabel>Broker Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="Enter broker email"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
             />
           </div>
@@ -134,44 +184,56 @@ export default function DepositMortgage(props: Props) {
           control={form.control}
           name="solicitor.name"
           render={({ field }) => (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Solicitor Name</label>
-              <Input {...field} placeholder="Enter solicitor name" />
-            </div>
+            <FormItem>
+              <FormLabel>Solicitor Name</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Enter solicitor name" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
         />
         <FormField
           control={form.control}
           name="solicitor.address"
           render={({ field }) => (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Solicitor Address</label>
-              <Input {...field} placeholder="Enter solicitor address" />
-            </div>
+            <FormItem>
+              <FormLabel>Solicitor Address</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Enter solicitor address" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
         />
         <FormField
           control={form.control}
           name="solicitor.phone"
           render={({ field }) => (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Solicitor Phone</label>
-              <Input {...field} placeholder="Enter solicitor phone" />
-            </div>
+            <FormItem>
+              <FormLabel>Solicitor Phone</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Enter solicitor phone" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
         />
         <FormField
           control={form.control}
           name="solicitor.email"
           render={({ field }) => (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Solicitor Email</label>
-              <Input
-                {...field}
-                type="email"
-                placeholder="Enter solicitor email"
-              />
-            </div>
+            <FormItem>
+              <FormLabel>Solicitor Email</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  type="email"
+                  placeholder="Enter solicitor email"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
         />
       </div>

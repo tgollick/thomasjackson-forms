@@ -1,6 +1,12 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { FormField } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -31,18 +37,16 @@ const FileUpload = ({
 
   const getFile = () => {
     const file = getValues(fieldName) as File;
-    return file && file.name !== "placeholder" ? file : null;
+    return file;
   };
 
   const file = getFile();
-  const isImage = file && file.type.startsWith("image/");
+
+  const isImage =
+    (file != null || file != undefined) && file.type.startsWith("image/");
 
   const handleDelete = () => {
-    // Create a new dummy file with name "placeholder"
-    const dummyFile = new File([], "placeholder", {
-      type: "application/octet-stream",
-    });
-    field.onChange(dummyFile);
+    field.onChange(null);
   };
 
   return (
@@ -123,26 +127,44 @@ type Props = {};
 const IdentificationFunds = (props: Props) => {
   const form = useFormContext<BuyerOfferFormValues>();
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fieldName: "identificationUploads" | "fundProofUpload"
-  ) => {
-    const files = Array.from(e.target.files || []);
-    form.setValue(fieldName, files);
-  };
-
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <label className="text-sm font-medium">Identification Documents</label>
-        <div className="flex items-center gap-4">
+        <FormLabel>
+          Please provide two forms of identification (Passport, Driving License,
+          Utility Bill)
+        </FormLabel>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
           <FormField
             control={form.control}
-            name="identificationUploads"
+            name="identificationUploads.0"
             render={({ field: { value, ...field } }) => (
-              <div className="flex-1">
-                <FileUpload field={field} fieldName="identificationUploads" />
-              </div>
+              <FormItem>
+                <FormLabel>Identification Document 1</FormLabel>
+                <FormControl>
+                  <FileUpload
+                    field={field}
+                    fieldName="identificationUploads.0"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="identificationUploads.1"
+            render={({ field: { value, ...field } }) => (
+              <FormItem>
+                <FormLabel>Identification Document 2</FormLabel>
+                <FormControl>
+                  <FileUpload
+                    field={field}
+                    fieldName="identificationUploads.1"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
         </div>
@@ -152,24 +174,27 @@ const IdentificationFunds = (props: Props) => {
         control={form.control}
         name="fundPurchase"
         render={({ field }) => (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Funding Method</label>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select funding method" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Cash">Cash</SelectItem>
-                <SelectItem value="Mortgage">Mortgage</SelectItem>
-                <SelectItem value="Cash from sale">Cash from sale</SelectItem>
-                <SelectItem value="Loan">Loan</SelectItem>
-                <SelectItem value="Savings/ISA/Bonds">
-                  Savings/ISA/Bonds
-                </SelectItem>
-                <SelectItem value="Other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <FormItem>
+            <FormLabel>Funding Method</FormLabel>
+            <FormControl>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select funding method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="Mortgage">Mortgage</SelectItem>
+                  <SelectItem value="Cash from sale">Cash from sale</SelectItem>
+                  <SelectItem value="Loan">Loan</SelectItem>
+                  <SelectItem value="Savings/ISA/Bonds">
+                    Savings/ISA/Bonds
+                  </SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
         )}
       />
 
@@ -177,34 +202,40 @@ const IdentificationFunds = (props: Props) => {
         control={form.control}
         name="fundProof"
         render={({ field }) => (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Proof Type</label>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select proof type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Bank statement">Bank statement</SelectItem>
-                <SelectItem value="Agreement in principle">
-                  Agreement in principle
-                </SelectItem>
-                <SelectItem value="Loan documents">Loan documents</SelectItem>
-                <SelectItem value="Savings">Savings</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <FormItem>
+            <FormLabel>Proof Type</FormLabel>
+            <FormControl>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select proof type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Bank statement">Bank statement</SelectItem>
+                  <SelectItem value="Agreement in principle">
+                    Agreement in principle
+                  </SelectItem>
+                  <SelectItem value="Loan documents">Loan documents</SelectItem>
+                  <SelectItem value="Savings">Savings</SelectItem>
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
         )}
       />
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Proof of Funds</label>
         <FormField
           control={form.control}
-          name="fundProofUpload"
+          name="fundProofUpload.0"
           render={({ field: { value, ...field } }) => (
-            <div className="flex-1">
-              <FileUpload field={field} fieldName="fundProofUpload" />
-            </div>
+            <FormItem>
+              <FormLabel>Proof of Funds</FormLabel>
+              <FormControl>
+                <FileUpload field={field} fieldName="fundProofUpload.0" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
         />
       </div>
