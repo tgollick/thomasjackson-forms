@@ -85,9 +85,9 @@ export default function DepositMortgage(props: Props) {
         control={form.control}
         name="requireMortgage"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="flex items-center justify-between">
             <FormLabel>Require Mortgage</FormLabel>
-            <FormControl>
+            <FormControl className="flex items-center justify-between">
               <Switch
                 checked={field.value}
                 onCheckedChange={() => {
@@ -107,11 +107,11 @@ export default function DepositMortgage(props: Props) {
             control={form.control}
             name="brokerContact"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex items-center justify-between">
                 <FormLabel>
                   Are you happy to be contacted by our in house mortgage broker?
                 </FormLabel>
-                <FormControl>
+                <FormControl className="flex items-center justify-between">
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}

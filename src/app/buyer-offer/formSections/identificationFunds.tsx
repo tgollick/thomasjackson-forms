@@ -226,12 +226,12 @@ const IdentificationFunds = (props: Props) => {
       <div className="space-y-2">
         <FormField
           control={form.control}
-          name="fundProofUpload.0"
+          name="fundProofUpload"
           render={({ field: { value, ...field } }) => (
             <FormItem>
               <FormLabel>Proof of Funds</FormLabel>
               <FormControl>
-                <FileUpload field={field} fieldName="fundProofUpload.0" />
+                <FileUpload field={field} fieldName="fundProofUpload" />
               </FormControl>
               <FormMessage />
             </FormItem>

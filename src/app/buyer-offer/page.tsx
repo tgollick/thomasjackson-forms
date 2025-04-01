@@ -40,6 +40,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
+import { useTRPC } from "@/trpc/client";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type Props = {};
 
@@ -78,6 +81,15 @@ const page = (props: Props) => {
   const [section, setSection] = useState(0);
   const [loading, setLoading] = useState(false);
   const [formProgress, setFormProgress] = useState(0);
+  const trpc = useTRPC();
+
+  const buyerOfferMutation = useMutation(
+    trpc.form.buyerOfferSubmission.mutationOptions({
+      onSuccess: () => {
+        toast("Buyer offer submitted successfully");
+      },
+    })
+  );
 
   const form = useForm<BuyerOfferFormValues>({
     resolver: zodResolver(buyerOfferSchema),
@@ -130,7 +142,15 @@ const page = (props: Props) => {
   };
 
   const onSubmit = (values: BuyerOfferFormValues) => {
-    console.log(values);
+    setLoading(true);
+
+    try {
+      buyerOfferMutation.mutateAsync(values);
+    } catch (error) {
+      toast.error("Failed to submit buyer offer");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

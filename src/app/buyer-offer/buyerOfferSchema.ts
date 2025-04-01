@@ -148,7 +148,7 @@ export const buyerOfferSchema = z
 
     fundPurchase: FundingMethod,
     fundProof: ProofType,
-    fundProofUpload: z.array(fileSchema).min(1, "Please upload proof of funds"),
+    fundProofUpload: fileSchema,
 
     depositAmount: z.number().positive("Deposit amount must be greater than 0"),
     depositDetails: z
@@ -240,7 +240,7 @@ export const defaultValues: BuyerOfferFormValues = {
   identificationUploads: [], // Empty array for file uploads
   fundPurchase: "Mortgage",
   fundProof: "Agreement in principle",
-  fundProofUpload: [],
+  fundProofUpload: dummyFile,
   depositAmount: 0,
   depositDetails: "",
   requireMortgage: false,
