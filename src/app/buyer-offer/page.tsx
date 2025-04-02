@@ -43,6 +43,8 @@ import { z } from "zod";
 import { useTRPC } from "@/trpc/client";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { LoadingOverlay } from "@/components/loadingOverlay";
 
 type Props = {};
 
@@ -82,10 +84,19 @@ const page = (props: Props) => {
   const [loading, setLoading] = useState(false);
   const [formProgress, setFormProgress] = useState(0);
   const trpc = useTRPC();
+  const router = useRouter();
+  const [status, setStatus] = useState<"success" | "error" | undefined>(
+    undefined
+  );
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  );
 
   const buyerOfferMutation = useMutation(
     trpc.form.buyerOfferSubmission.mutationOptions()
   );
+
+  const uploadMutation = useMutation(trpc.file.getUploadURL.mutationOptions());
 
   const form = useForm<BuyerOfferFormValues>({
     resolver: zodResolver(buyerOfferSchema),
@@ -137,15 +148,79 @@ const page = (props: Props) => {
     return [];
   };
 
+  const handleFileUpload = async () => {
+    const fundProof = form.getValues("fundProofUpload");
+    const indentification = form.getValues("identificationUploads");
+
+    for (const file of [fundProof, ...indentification]) {
+      if (!file || file.name === "") {
+        return false;
+      }
+    }
+
+    try {
+      const fundResponse = await uploadMutation.mutateAsync({
+        fileName: fundProof.name,
+      });
+
+      const identificationResponseArray = [];
+
+      for (const file of indentification) {
+        const response = await uploadMutation.mutateAsync({
+          fileName: file.name,
+        });
+        identificationResponseArray.push(response);
+      }
+
+      await fetch(fundResponse.uploadUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": fundProof.type,
+        },
+        body: fundProof,
+      });
+
+      for (let i = 0; i < identificationResponseArray.length; i++) {
+        const fileResponse = identificationResponseArray[i];
+        const file = indentification[i];
+
+        await fetch(fileResponse.uploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": file.type,
+          },
+          body: file,
+        });
+      }
+
+      return {
+        success: true,
+        fundProofKey: fundResponse.key,
+        identificationKeys: identificationResponseArray.map((r) => r.key),
+      };
+    } catch (e) {
+      toast.error("Failed to upload files");
+      return false;
+    }
+  };
+
   const onSubmit = async (values: BuyerOfferFormValues) => {
     setLoading(true);
 
     const { identificationUploads, fundProofUpload, ...cleanInputs } = values;
 
+    const fileUploadResult = await handleFileUpload();
+
+    if (!fileUploadResult) {
+      toast.error("Failed to upload files");
+      setLoading(false);
+      return;
+    }
+
     const payload = {
       ...cleanInputs,
-      identificationKeys: ["123456", "123456"],
-      fundProofKey: "123456",
+      identificationKeys: fileUploadResult.identificationKeys,
+      fundProofKey: fileUploadResult.fundProofKey,
     };
 
     console.log("Mutation payload:", JSON.stringify(payload));
@@ -154,15 +229,18 @@ const page = (props: Props) => {
       const response = await buyerOfferMutation.mutateAsync(payload);
 
       if (response.success) {
-        toast.success(String(response.message));
+        setStatus("success");
+        setErrorMessage(String(response.message));
       } else {
-        toast.error(
+        setStatus("error");
+        setErrorMessage(
           String(response.message) ||
             "There was an error submitting your application."
         );
       }
     } catch (error) {
-      toast.error("Failed to submit buyer offer");
+      setStatus("error");
+      setErrorMessage("Failed to submit buyer offer");
     } finally {
       setLoading(false);
     }
@@ -307,14 +385,8 @@ const page = (props: Props) => {
                     variant="default"
                     className="ml-auto flex items-center gap-1 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
                   >
-                    {loading ? (
-                      <div className="h-5 w-5 border-2 border-t-transparent border-white rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        Submit Offer
-                        <CheckCircle2 className="h-4 w-4" />
-                      </>
-                    )}
+                    Submit Offer
+                    <CheckCircle2 className="h-4 w-4" />
                   </Button>
                 )}
               </CardFooter>
@@ -322,6 +394,12 @@ const page = (props: Props) => {
           </FormProvider>
         </Card>
       </div>
+
+      <LoadingOverlay
+        loading={loading}
+        status={status}
+        errorMessage={errorMessage}
+      />
     </div>
   );
 };

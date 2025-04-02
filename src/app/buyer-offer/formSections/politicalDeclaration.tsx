@@ -31,9 +31,9 @@ export default function PoliticalDeclaration() {
         control={form.control}
         name="politicallyExposed"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="flex items-center justify-between">
             <FormLabel>Politically Exposed Person</FormLabel>
-            <FormControl>
+            <FormControl className="flex items-center h-full">
               <Switch checked={field.value} onCheckedChange={field.onChange} />
             </FormControl>
             <FormMessage />
@@ -63,27 +63,25 @@ export default function PoliticalDeclaration() {
       <div className="space-y-4">
         {Array.from({ length: numberOfBuyers }).map((_, index) => (
           <div key={index} className="space-y-4">
-            <div className="flex items-center gap-2">
-              <FormField
-                control={form.control}
-                name={`declarationNames.${index}`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Declaration Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter full name" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name={`declarationNames.${index}`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Declaration Name {index + 1}</FormLabel>
+                  <FormControl className="w-full">
+                    <Input {...field} placeholder="Enter full name" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name={`declarationSignature.${index}`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Signature</FormLabel>
+                  <FormLabel>Signature {index + 1}</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Enter signature" />
                   </FormControl>
