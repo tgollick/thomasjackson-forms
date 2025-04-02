@@ -84,11 +84,7 @@ const page = (props: Props) => {
   const trpc = useTRPC();
 
   const buyerOfferMutation = useMutation(
-    trpc.form.buyerOfferSubmission.mutationOptions({
-      onSuccess: () => {
-        toast("Buyer offer submitted successfully");
-      },
-    })
+    trpc.form.buyerOfferSubmission.mutationOptions()
   );
 
   const form = useForm<BuyerOfferFormValues>({
@@ -141,11 +137,30 @@ const page = (props: Props) => {
     return [];
   };
 
-  const onSubmit = (values: BuyerOfferFormValues) => {
+  const onSubmit = async (values: BuyerOfferFormValues) => {
     setLoading(true);
 
+    const { identificationUploads, fundProofUpload, ...cleanInputs } = values;
+
+    const payload = {
+      ...cleanInputs,
+      identificationKeys: ["123456", "123456"],
+      fundProofKey: "123456",
+    };
+
+    console.log("Mutation payload:", JSON.stringify(payload));
+
     try {
-      buyerOfferMutation.mutateAsync(values);
+      const response = await buyerOfferMutation.mutateAsync(payload);
+
+      if (response.success) {
+        toast.success(String(response.message));
+      } else {
+        toast.error(
+          String(response.message) ||
+            "There was an error submitting your application."
+        );
+      }
     } catch (error) {
       toast.error("Failed to submit buyer offer");
     } finally {

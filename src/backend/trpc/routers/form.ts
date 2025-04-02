@@ -83,39 +83,35 @@ export const formRouter = createTRPCRouter({
   buyerOfferSubmission: publicProcedure
     .input(buyerOfferSchema)
     .mutation(async ({ input }) => {
-      const { identificationUploads, fundProofUpload, ...cleanInputs } = input;
-
       try {
         const buyerOffer = await prisma.buyerOffer.create({
           data: {
-            propertyAddress: cleanInputs.propertyAddress,
-            buyerNames: cleanInputs.buyerNames,
-            currentAddress: cleanInputs.currentAddress,
-            identificationUploadKeys: identificationUploads.map(
-              (file) => file.name
-            ),
-            fundPurchase: cleanInputs.fundPurchase,
-            fundProof: cleanInputs.fundProof,
-            fundProofKey: "123456",
-            depositAmount: cleanInputs.depositAmount,
-            depositDetails: cleanInputs.depositDetails,
-            requireMortgage: cleanInputs.requireMortgage,
-            brokerContact: cleanInputs.brokerContact,
-            politicallyExposed: cleanInputs.politicallyExposed,
-            politicallyExposedDetails: cleanInputs.politicallyExposedDetails,
-            declarationNames: cleanInputs.declarationNames,
-            declarationSignature: cleanInputs.declarationSignature,
-            declarationDate: cleanInputs.declarationDate,
+            propertyAddress: input.propertyAddress,
+            buyerNames: input.buyerNames,
+            currentAddress: input.currentAddress,
+            identificationUploadKeys: input.identificationKeys,
+            fundPurchase: input.fundPurchase,
+            fundProof: input.fundProof,
+            fundProofKey: input.fundProofKey,
+            depositAmount: input.depositAmount,
+            depositDetails: input.depositDetails,
+            requireMortgage: input.requireMortgage,
+            brokerContact: input.brokerContact,
+            politicallyExposed: input.politicallyExposed,
+            politicallyExposedDetails: input.politicallyExposedDetails,
+            declarationNames: input.declarationNames,
+            declarationSignature: input.declarationSignature,
+            declarationDate: input.declarationDate,
 
             // Create nested mortgage broker if required
-            ...(cleanInputs.requireMortgage && cleanInputs.mortgageBroker
+            ...(input.requireMortgage && input.mortgageBroker
               ? {
                   mortgageBroker: {
                     create: {
-                      name: cleanInputs.mortgageBroker.name,
-                      address: cleanInputs.mortgageBroker.address,
-                      phone: cleanInputs.mortgageBroker.phone,
-                      email: cleanInputs.mortgageBroker.email,
+                      name: input.mortgageBroker.name,
+                      address: input.mortgageBroker.address,
+                      phone: input.mortgageBroker.phone,
+                      email: input.mortgageBroker.email,
                     },
                   },
                 }
@@ -124,10 +120,10 @@ export const formRouter = createTRPCRouter({
             // Create nested solicitor
             solicitor: {
               create: {
-                name: cleanInputs.solicitor.name,
-                address: cleanInputs.solicitor.address,
-                phone: cleanInputs.solicitor.phone,
-                email: cleanInputs.solicitor.email,
+                name: input.solicitor.name,
+                address: input.solicitor.address,
+                phone: input.solicitor.phone,
+                email: input.solicitor.email,
               },
             },
           },
@@ -135,7 +131,7 @@ export const formRouter = createTRPCRouter({
 
         return {
           success: true,
-          applicationId: buyerOffer.id,
+          buyerOfferId: buyerOffer.id,
           message: "Application submitted successfully!",
         };
       } catch (err) {

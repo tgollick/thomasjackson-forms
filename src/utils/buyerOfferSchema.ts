@@ -1,9 +1,5 @@
 import { z } from "zod";
 
-const fileSchema = z.instanceof(File, {
-  message: "Please upload a valid file",
-});
-
 // Mortgage Broker Schema
 export const mortgageBrokerSchema = z.object({
   id: z.string().optional(),
@@ -52,11 +48,11 @@ export const buyerOfferSchema = z
       .min(1, "At least one buyer name is required"),
     currentAddress: z.string().min(1, "Current address is required"),
 
-    identificationUploads: z.array(fileSchema),
+    identificationKeys: z.array(z.string()),
 
     fundPurchase: FundingMethod,
     fundProof: ProofType,
-    fundProofUpload: fileSchema,
+    fundProofKey: z.string(),
 
     depositAmount: z.number().positive("Deposit amount must be greater than 0"),
     depositDetails: z
