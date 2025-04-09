@@ -230,7 +230,6 @@ const page = (props: Props) => {
 
       if (response.success) {
         setStatus("success");
-        setErrorMessage(String(response.message));
       } else {
         setStatus("error");
         setErrorMessage(

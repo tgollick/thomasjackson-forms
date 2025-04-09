@@ -82,6 +82,7 @@ import {
   EmploymentStatus,
   MaritalStatus,
 } from "@prisma/client";
+import { LoadingOverlay } from "@/components/loadingOverlay";
 
 const formSections = [
   {
@@ -210,6 +211,12 @@ export default function TenantApplicationForm() {
   const [section, setSection] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [formProgress, setFormProgress] = useState(0);
+  const [status, setStatus] = useState<"success" | "error" | undefined>(
+    undefined
+  );
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  );
 
   const trpc = useTRPC();
   const router = useRouter();
@@ -404,6 +411,8 @@ export default function TenantApplicationForm() {
 
       if (!uploadSuccess) {
         setIsLoading(false);
+        setStatus("error");
+        setErrorMessage("Failed to upload files");
         return;
       }
 
@@ -442,19 +451,17 @@ export default function TenantApplicationForm() {
       const response = await tenancyApplicationMutation.mutateAsync(payload);
 
       if (response.success) {
-        toast.success(String(response.message));
-        router.push("/thank-you");
+        setStatus("success");
       } else {
-        toast.error(
+        setStatus("error");
+        setErrorMessage(
           String(response.message) ||
             "There was an error submitting your application."
         );
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error(
-        "There was an error submitting your application. Please try again."
-      );
+      setStatus("error");
+      setErrorMessage("Failed to submit tenant application");
     } finally {
       setIsLoading(false);
     }
@@ -630,6 +637,12 @@ export default function TenantApplicationForm() {
           </FormProvider>
         </Card>
       </div>
+
+      <LoadingOverlay
+        loading={isLoading}
+        status={status}
+        errorMessage={errorMessage}
+      />
     </div>
   );
 }
